@@ -208,11 +208,12 @@ void test3() {
 void test4() {
     int test_num = 4;
     size_t size = LARGE_ALLOCATION_SIZE + 10;
+
     char *allocation = malloc(size);
     
     malloc_block *block = get_block_from_data(g_memory_block, allocation);
     
-    //Check if data returnet by malloc exists in all blocks
+    //Check if data returned by malloc exists in all blocks
     if (block == NULL) {
         print_test(test_num, TEST_FAIL, "Allocation data ptr cannot be found in any block");
         return;

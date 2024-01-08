@@ -14,12 +14,19 @@ void delete_mapping(void *map, size_t size) {
     munmap(map, size);
 }
 
+size_t calculate_allocation_size(size_t size) {
+    return N_BLOCKS_PER_SIZE * sizeof(malloc_block) + size * N_BLOCKS_PER_SIZE;
+}
+
 //FIXME: Refactor this function, will be very big
 malloc_block *create_initial_allocation() {
-    size_t tiny_size = N_BLOCKS_PER_SIZE * sizeof(malloc_block) + TINY_ALLOCATION_SIZE * N_BLOCKS_PER_SIZE;
+    //size_t tiny_size = N_BLOCKS_PER_SIZE * sizeof(malloc_block) + TINY_ALLOCATION_SIZE * N_BLOCKS_PER_SIZE;
+    size_t tiny_size = calculate_allocation_size(TINY_ALLOCATION_SIZE);
     size_t medium_size = 0;
     size_t large_size = 0;
     size_t total_size = tiny_size + medium_size + large_size;
+
+    printf("tiny_size: %zu\n", tiny_size);
 
     malloc_block *memory_block = create_new_mapping(total_size);
     if (memory_block == MAP_FAILED) {

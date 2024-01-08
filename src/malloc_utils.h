@@ -4,7 +4,7 @@
 #include "libft_malloc/libft_malloc.h"
 
 #define N_SIZES 1
-#define TINY_ALLOCATION_SIZE 10
+#define TINY_ALLOCATION_SIZE 16
 #define SMALL_ALLOCATION_SIZE 100
 #define LARGE_ALLOCATION_SIZE 1000
 #define N_BLOCKS_PER_SIZE 10
