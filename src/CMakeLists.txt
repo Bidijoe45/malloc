@@ -1,5 +1,5 @@
 set(LIBRARY_SOURCES
-    "${libft_malloc_SOURCE_DIR}/include/libft_malloc/libft_malloc.h"
+    "${PROJECT_SOURCE_DIR}/include/libft_malloc/libft_malloc.h"
     malloc_utils.h
     malloc_utils.c
     malloc.c
