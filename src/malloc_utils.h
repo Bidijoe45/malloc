@@ -4,9 +4,8 @@
 #include "libft_malloc/libft_malloc.h"
 
 #define N_SIZES 1
-#define TINY_ALLOCATION_SIZE 16
-#define SMALL_ALLOCATION_SIZE 100
-#define LARGE_ALLOCATION_SIZE 1000
+#define TINY_ZONE_SIZE 16
+#define SMALL_ZONE_SIZE 128
 #define N_BLOCKS_PER_SIZE 10
 #define TOTAL_BLOCKS (N_SIZES * N_BLOCKS_PER_SIZE)
 
@@ -14,7 +13,7 @@ typedef struct s_malloc_block {
     int in_use;
     size_t size;
     struct s_malloc_block *next;
-    void *data;
+    void *data_location;
 } malloc_block;
 
 extern malloc_block *g_memory_block;

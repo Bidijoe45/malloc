@@ -18,31 +18,25 @@ size_t calculate_allocation_size(size_t size) {
     return N_BLOCKS_PER_SIZE * sizeof(malloc_block) + size * N_BLOCKS_PER_SIZE;
 }
 
-//FIXME: Refactor this function, will be very big
-malloc_block *create_initial_allocation() {
-    //size_t tiny_size = N_BLOCKS_PER_SIZE * sizeof(malloc_block) + TINY_ALLOCATION_SIZE * N_BLOCKS_PER_SIZE;
-    size_t tiny_size = calculate_allocation_size(TINY_ALLOCATION_SIZE);
-    size_t medium_size = 0;
-    size_t large_size = 0;
-    size_t total_size = tiny_size + medium_size + large_size;
+void init_memory_block(malloc_block *block, size_t size, void *data_location) {
+    block->in_use = 0;
+    block->size = size;
+    block->data_location = data_location;
+    block->next = NULL;
 
-    printf("tiny_size: %zu\n", tiny_size);
+    //TODO: Delete this from here, is only for debugging
+    char *data_block = block->data_location;
+    strcpy(data_block, "123456789");
+}
 
-    malloc_block *memory_block = create_new_mapping(total_size);
-    if (memory_block == MAP_FAILED) {
-        printf("ERROR: creating map\n");
-        printf("%s\n", strerror(errno));
-        exit(1);
-    }
-
-    char *data_block = (char *)memory_block + N_BLOCKS_PER_SIZE * sizeof(malloc_block);
-
-    //Initialize tiny memory blocks
-    malloc_block *current_block = memory_block;
+void create_memory_blocks(malloc_block *memory_map_start, char *data_block_start, size_t size) {
+    char *data_block = data_block_start;
+    malloc_block *current_block = memory_map_start;
     malloc_block *previous_block = NULL;
+    
     for (size_t i=0; i < N_BLOCKS_PER_SIZE; i++) {
-        init_memory_block(current_block, TINY_ALLOCATION_SIZE, data_block);
-        data_block += TINY_ALLOCATION_SIZE;
+        init_memory_block(current_block, size, data_block_start);
+        data_block += size;
         previous_block = current_block;
 
         if (i == N_BLOCKS_PER_SIZE - 1)
@@ -51,28 +45,32 @@ malloc_block *create_initial_allocation() {
         current_block++;
         previous_block->next = current_block;
     }
-
-    //TODO: Initialize medium blocks
-    //TODO: Initialize large blocks
-
-    return memory_block;
 }
 
-void init_memory_block(malloc_block *block, size_t size, void *data) {
-    block->in_use = 0;
-    block->size = size;
-    block->data = data;
-    block->next = NULL;
+malloc_block *create_initial_allocation() {
+    size_t tiny_size = calculate_allocation_size(TINY_ZONE_SIZE);
+    size_t small_size = calculate_allocation_size(SMALL_ZONE_SIZE);
 
-    //TODO: Delete this from here
-    char *data_block = block->data;
-    strcpy(data_block, "123456789");
+    malloc_block *memory_block = create_new_mapping(tiny_size + small_size);
+    if (memory_block == MAP_FAILED) {
+        printf("ERROR: creating map\n");
+        printf("%s\n", strerror(errno));
+        exit(1);
+    }
+
+    char *data_block_start = (char *)memory_block + N_BLOCKS_PER_SIZE * sizeof(malloc_block);
+    create_memory_blocks(memory_block, data_block_start, TINY_ZONE_SIZE);
+    memory_block += sizeof(malloc_block) * N_BLOCKS_PER_SIZE;
+    data_block_start += TINY_ZONE_SIZE * N_BLOCKS_PER_SIZE;
+    create_memory_blocks(memory_block, data_block_start, SMALL_ZONE_SIZE);
+
+    return memory_block;
 }
 
 void free_memory_block(malloc_block *block, malloc_block *previous_block) {
     block->in_use = 0;
     
-    if (block->size > LARGE_ALLOCATION_SIZE) {
+    if (block->size > SMALL_ZONE_SIZE) {
         if (block->next == NULL)
             previous_block->next = NULL;
         else
@@ -87,7 +85,7 @@ void *find_memory_block(size_t size) {
         
         if (current_block->in_use == 0 && size <= current_block->size) {
             current_block->in_use = 1;
-            return current_block->data;
+            return current_block->data_location;
         }
 
         current_block = current_block->next;
@@ -113,5 +111,5 @@ void *create_custom_allocation(size_t size) {
 
     current_block->next = memory_block;
 
-    return memory_block->data;
+    return memory_block->data_location;
 }

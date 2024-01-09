@@ -22,7 +22,7 @@ void free(void *ptr) {
 
     while (current_block != NULL) {
         
-        if (current_block->data == ptr) {
+        if (current_block->data_location == ptr) {
             free_memory_block(current_block, previous_block);
             return;
         }
@@ -51,14 +51,14 @@ void show_alloc_mem() {
         printf("in_use: %d\n", current_block->in_use);
         printf("size: %zu\n", current_block->size);
         printf("next: %p -> %llu\n", current_block->next, (uint64_t)current_block->next);
-        printf("data_address: %p\n", current_block->data);
-        printf("data: %s\n", (char *)current_block->data);
+        printf("data_address: %p\n", current_block->data_location);
+        printf("data: %s\n", (char *)current_block->data_location);
         printf("--- --- --- ---\n");
 
         printf("block address diff: %llu\n", (u_int64_t)current_block->next - (uint64_t)current_block);
 
         if (current_block->next != NULL)
-            printf("data address diff: %llu\n", (u_int64_t)current_block->next->data - (uint64_t)current_block->data);
+            printf("data address diff: %llu\n", (u_int64_t)current_block->next->data_location - (uint64_t)current_block->data_location);
 
         current_block = current_block->next;
     }

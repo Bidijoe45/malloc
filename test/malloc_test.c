@@ -17,7 +17,7 @@ malloc_block *get_block_from_data(void *g_block, void *data_allocation) {
     malloc_block *current_block = g_block;
     while (current_block != NULL) {
 
-        if (current_block->data == data_allocation)
+        if (current_block->data_location == data_allocation)
             return current_block;
 
         current_block = current_block->next;

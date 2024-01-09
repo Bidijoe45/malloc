@@ -63,6 +63,8 @@ void test2() {
     //This should return the second block
     char *allocation2 = malloc(8);
 
+    show_alloc_mem();
+
     malloc_block *g_block = g_memory_block;
 
     //Check if first allocation is in use
@@ -112,12 +114,12 @@ void test3() {
     //Allocation 1
     malloc_block *block1 = get_block_from_data(g_memory_block, allocation1);
 
-    if (block1->data == NULL) {
+    if (block1->data_location == NULL) {
         print_test(test_num, TEST_FAIL, "Allocation 1 data ptr cannot be found in any block");
         return;
     } 
 
-    if (block1->data != allocation1) {
+    if (block1->data_location != allocation1) {
         print_test(test_num, TEST_FAIL, "Allocation 1 data ptr is not the same as block data ptr");
         return;
     }
@@ -125,12 +127,12 @@ void test3() {
     //Allocation 2
     malloc_block *block2 = get_block_from_data(g_memory_block, allocation2);
 
-    if (block2->data == NULL) {
+    if (block2->data_location == NULL) {
         print_test(test_num, TEST_FAIL, "Allocation 2 data ptr cannot be found in any block");
         return;
     } 
 
-    if (block2->data != allocation2) {
+    if (block2->data_location != allocation2) {
         print_test(test_num, TEST_FAIL, "Allocation 2 data ptr is not the same as block data ptr");
         return;
     }
@@ -138,12 +140,12 @@ void test3() {
     //Allocation 3
     malloc_block *block3 = get_block_from_data(g_memory_block, allocation3);
 
-    if (block3->data == NULL) {
+    if (block3->data_location == NULL) {
         print_test(test_num, TEST_FAIL, "Allocation 3 data ptr cannot be found in any block");
         return;
     } 
 
-    if (block3->data != allocation3) {
+    if (block3->data_location != allocation3) {
         print_test(test_num, TEST_FAIL, "Allocation 3 data ptr is not the same as block data ptr");
         return;
     }
@@ -151,12 +153,12 @@ void test3() {
     //Allocation 4
     malloc_block *block4 = get_block_from_data(g_memory_block, allocation4);
 
-    if (block4->data == NULL) {
+    if (block4->data_location == NULL) {
         print_test(test_num, TEST_FAIL, "Allocation 4 data ptr cannot be found in any block");
         return;
     } 
 
-    if (block4->data != allocation4) {
+    if (block4->data_location != allocation4) {
         print_test(test_num, TEST_FAIL, "Allocation 4 data ptr is not the same as block data ptr");
         return;
     }
@@ -207,7 +209,7 @@ void test3() {
 */
 void test4() {
     int test_num = 4;
-    size_t size = LARGE_ALLOCATION_SIZE + 10;
+    size_t size = SMALL_ZONE_SIZE + 10;
 
     char *allocation = malloc(size);
     
