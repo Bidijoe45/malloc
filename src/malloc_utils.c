@@ -71,14 +71,13 @@ void init_memory_block(malloc_block *block, size_t size, void *data) {
 
 void free_memory_block(malloc_block *block, malloc_block *previous_block) {
     block->in_use = 0;
-
+    
     if (block->size > LARGE_ALLOCATION_SIZE) {
-        delete_mapping(block, block->size);
-
         if (block->next == NULL)
             previous_block->next = NULL;
         else
             previous_block->next = block->next;
+        delete_mapping(block, block->size);
     }
 }
 

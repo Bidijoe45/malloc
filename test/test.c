@@ -238,6 +238,8 @@ void test4() {
     //Check if block is freed correctly
     free(allocation);
 
+    block = get_block_from_data(g_memory_block, allocation);
+
     if (block != NULL) {
         print_test(test_num, TEST_FAIL, "Allocation data ptr should be NULL because block should have been unnmaped");
         return;
