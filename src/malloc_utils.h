@@ -3,7 +3,7 @@
 
 #include "libft_malloc/libft_malloc.h"
 
-#define N_SIZES 1
+#define N_SIZES 2
 #define TINY_ZONE_SIZE 16
 #define SMALL_ZONE_SIZE 128
 #define N_BLOCKS_PER_SIZE 10

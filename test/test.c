@@ -63,8 +63,6 @@ void test2() {
     //This should return the second block
     char *allocation2 = malloc(8);
 
-    show_alloc_mem();
-
     malloc_block *g_block = g_memory_block;
 
     //Check if first allocation is in use

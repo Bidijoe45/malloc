@@ -58,9 +58,9 @@ malloc_block *create_initial_allocation() {
         exit(1);
     }
 
-    char *data_block_start = (char *)memory_block + N_BLOCKS_PER_SIZE * sizeof(malloc_block);
+    char *data_block_start = (char *)memory_block + sizeof(malloc_block) * TOTAL_BLOCKS;
     create_memory_blocks(memory_block, data_block_start, TINY_ZONE_SIZE);
-    memory_block += sizeof(malloc_block) * N_BLOCKS_PER_SIZE;
+    memory_block += N_BLOCKS_PER_SIZE;
     data_block_start += TINY_ZONE_SIZE * N_BLOCKS_PER_SIZE;
     create_memory_blocks(memory_block, data_block_start, SMALL_ZONE_SIZE);
 

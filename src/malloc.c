@@ -43,6 +43,7 @@ void show_alloc_mem() {
     printf("=== ALLOCATED MEMORY ===\n");
 
     malloc_block *current_block = g_memory_block;
+    size_t total_blocks = 0;
 
     size_t i = 0;
     while (current_block != NULL) {
@@ -60,8 +61,13 @@ void show_alloc_mem() {
         if (current_block->next != NULL)
             printf("data address diff: %llu\n", (u_int64_t)current_block->next->data_location - (uint64_t)current_block->data_location);
 
+        total_blocks++;
+
         current_block = current_block->next;
     }
 
     printf("========================\n");
+    printf("total blocks: %d\n", total_blocks);
+    printf("========================\n");
+
 }
