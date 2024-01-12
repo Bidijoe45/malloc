@@ -24,5 +24,6 @@ void init_memory_block(malloc_block *block, size_t size, void *data);
 void free_memory_block(malloc_block *block, malloc_block *previous_block);
 void *find_memory_block(size_t size);
 void *create_custom_allocation(size_t size);
+void print_malloc_block(malloc_block *block);
 
 #endif

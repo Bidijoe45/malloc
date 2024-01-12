@@ -29,24 +29,6 @@ void init_memory_block(malloc_block *block, size_t size, void *data_location) {
     strcpy(data_block, "123456789");
 }
 
-void create_memory_blocks(malloc_block *memory_map_start, char *data_block_start, size_t size) {
-    char *data_block = data_block_start;
-    malloc_block *current_block = memory_map_start;
-    malloc_block *previous_block = NULL;
-    
-    for (size_t i=0; i < N_BLOCKS_PER_SIZE; i++) {
-        init_memory_block(current_block, size, data_block_start);
-        data_block += size;
-        previous_block = current_block;
-
-        if (i == N_BLOCKS_PER_SIZE - 1)
-            break;
-
-        current_block++;
-        previous_block->next = current_block;
-    }
-}
-
 malloc_block *create_initial_allocation() {
     size_t tiny_size = calculate_allocation_size(TINY_ZONE_SIZE);
     size_t small_size = calculate_allocation_size(SMALL_ZONE_SIZE);
@@ -58,11 +40,34 @@ malloc_block *create_initial_allocation() {
         exit(1);
     }
 
-    char *data_block_start = (char *)memory_block + sizeof(malloc_block) * TOTAL_BLOCKS;
-    create_memory_blocks(memory_block, data_block_start, TINY_ZONE_SIZE);
-    memory_block += N_BLOCKS_PER_SIZE;
-    data_block_start += TINY_ZONE_SIZE * N_BLOCKS_PER_SIZE;
-    create_memory_blocks(memory_block, data_block_start, SMALL_ZONE_SIZE);
+    //TODO: refactor this
+    char *data_block = (char *)memory_block + sizeof(malloc_block) * TOTAL_BLOCKS;
+    malloc_block *current_block = memory_block;
+    malloc_block *previous_block = NULL;
+    
+    for (size_t i=0; i < N_BLOCKS_PER_SIZE; i++) {
+        init_memory_block(current_block, TINY_ZONE_SIZE, data_block);
+        data_block += TINY_ZONE_SIZE;
+        previous_block = current_block;
+
+        if (i == N_BLOCKS_PER_SIZE - 1)
+            break;
+
+        current_block++;
+        previous_block->next = current_block;
+    }
+
+    for (size_t i=0; i < N_BLOCKS_PER_SIZE; i++) {
+        init_memory_block(current_block, SMALL_ZONE_SIZE, data_block);
+        data_block += SMALL_ZONE_SIZE;
+        previous_block = current_block;
+
+        if (i == N_BLOCKS_PER_SIZE - 1)
+            break;
+
+        current_block++;
+        previous_block->next = current_block;
+    }
 
     return memory_block;
 }
@@ -112,4 +117,13 @@ void *create_custom_allocation(size_t size) {
     current_block->next = memory_block;
 
     return memory_block->data_location;
+}
+
+void print_malloc_block(malloc_block *block) {
+    printf("address: %p -> %llu\n", block, (uint64_t)block);
+    printf("in_use: %d\n", block->in_use);
+    printf("size: %zu\n", block->size);
+    printf("next: %p -> %llu\n", block->next, (uint64_t)block->next);
+    printf("data_address: %p\n", block->data_location);
+    printf("data: %s\n", (char *)block->data_location);
 }

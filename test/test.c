@@ -19,10 +19,9 @@ void test1() {
     //This should return the first block
     char *allocation = malloc(10);
 
-    //Check if the first block is in use
-    malloc_block *block = g_memory_block;
 
-    if (block->in_use != 1) {
+    //Check if the first block is in use
+    if (!block_is_allocated(g_memory_block, allocation)) {
         print_test(test_num, TEST_FAIL, "Block was not assigned to use");
         return;
     }
@@ -40,7 +39,7 @@ void test1() {
     free(allocation);
 
     //Check if the first block is not in use anymore
-    if (block->in_use != 0) {
+    if (!block_is_freed(g_memory_block, allocation)) {
         print_test(test_num, TEST_FAIL, "Free did not set the in_use flag correctly");
         return;
     }
@@ -167,7 +166,7 @@ void test3() {
     free(allocation4);
 
     //Check free for allocation 1
-    int block_freed_correctly = check_block_is_freed(g_memory_block, allocation1);
+    int block_freed_correctly = block_is_freed(g_memory_block, allocation1);
 
     if (block_freed_correctly == 0) {
         print_test(test_num, TEST_FAIL, "Allocation 1 is not freed correctly");
@@ -175,7 +174,7 @@ void test3() {
     }
 
     //Check free for allocation 2
-    block_freed_correctly = check_block_is_freed(g_memory_block, allocation2);
+    block_freed_correctly = block_is_freed(g_memory_block, allocation2);
     
     if (block_freed_correctly == 0) {
         print_test(test_num, TEST_FAIL, "Allocation 2 is not freed correctly");
@@ -183,7 +182,7 @@ void test3() {
     }
 
     //Check free for allocation 3
-    block_freed_correctly = check_block_is_freed(g_memory_block, allocation3);
+    block_freed_correctly = block_is_freed(g_memory_block, allocation3);
     
     if (block_freed_correctly == 0) {
         print_test(test_num, TEST_FAIL, "Allocation 3 is not freed correctly");
@@ -191,7 +190,7 @@ void test3() {
     }
 
     //Check free for allocation 4
-    block_freed_correctly = check_block_is_freed(g_memory_block, allocation4);
+    block_freed_correctly = block_is_freed(g_memory_block, allocation4);
     
     if (block_freed_correctly == 0) {
         print_test(test_num, TEST_FAIL, "Allocation 4 is not freed correctly");
@@ -246,4 +245,101 @@ void test4() {
     }
 
     print_test(test_num, TEST_OK, NULL);
+}
+
+/*
+    Checks for:
+        - Freed pointer is NULL
+*/
+void test5() {
+    int test_num = 5;
+    free(NULL);
+
+    print_test(test_num, TEST_OK, NULL);
+}
+
+/*
+    Checks for:
+        - Freed pointer does not exist
+*/
+void test6() {
+    int test_num = 5;
+
+    char *invalid_ptr = (char *)0x104ca0000;
+
+    free(invalid_ptr);
+    print_test(test_num, TEST_OK, NULL);
+}
+
+/*
+    Checks for:
+        - Freed pointer is bigger than the pointer returned by malloc
+*/
+void test7() {
+    int test_num = 7;
+    char *allocation = malloc(SMALL_ZONE_SIZE - 10);
+
+    free(allocation + 20);
+
+    malloc_block *block = get_block_from_data(g_memory_block, allocation);
+
+    if (block_is_freed(g_memory_block, allocation)) {
+        print_test(test_num, TEST_FAIL, "Block was freed, but it shoul not");
+        return;
+    }
+
+    print_test(test_num, TEST_OK, NULL);
+}
+
+/*
+    Checks for:
+        - Freed pointer is smaller than the pointer returned by malloc
+*/
+void test8() {
+    int test_num = 8;
+    char *allocation = malloc(SMALL_ZONE_SIZE - 10);
+    malloc_block *block = get_block_from_data(g_memory_block, allocation);
+    
+    //Should always have a previous block becouse before SMALL_ZONE is TINY_ZONE
+    malloc_block previous_block_before_free = *get_previous_block(g_memory_block, block);
+
+    free(allocation - 20);
+    
+    if (block_is_freed(g_memory_block, allocation)) {
+        print_test(test_num, TEST_FAIL, "Block was freed, but it shoul not");
+        return;
+    }
+
+    //Should always have a previous block becouse before SMALL_ZONE is TINY_ZONE
+    malloc_block *previous_block_after_free = get_previous_block(g_memory_block, block);
+    if (previous_block_after_free == NULL) {
+        print_test(test_num, TEST_FAIL, "No previous block was found");
+        return;
+    }
+
+    //Previous block should be the same as before the free
+    if (previous_block_before_free.in_use != previous_block_after_free->in_use) {
+        print_test(test_num, TEST_FAIL, "Free modified the previous block");
+        return;
+    }
+
+    print_test(test_num, TEST_OK, NULL);
+}
+
+/*
+    Checks for:
+        - Count the initial allocation block
+*/
+void test9() {
+    int test_num = 9;
+    //TODO:
+}
+
+/*
+    Checks for:
+        - Check if data block belongs to used malloc_block
+*/
+void test10() {
+    int test_num = 10;
+    //TODO:
 }

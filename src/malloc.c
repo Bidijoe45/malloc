@@ -31,8 +31,6 @@ void free(void *ptr) {
         current_block = current_block->next;
     }
 
-    printf("Cannot deallocate invalid memory block\n");
-    exit(1);
 }
 
 void *realloc(void *ptr, size_t size) {
@@ -48,14 +46,8 @@ void show_alloc_mem() {
     size_t i = 0;
     while (current_block != NULL) {
         printf("--- BLOCK %zu ---\n", i++);
-        printf("address: %p -> %llu\n", current_block, (uint64_t)current_block);
-        printf("in_use: %d\n", current_block->in_use);
-        printf("size: %zu\n", current_block->size);
-        printf("next: %p -> %llu\n", current_block->next, (uint64_t)current_block->next);
-        printf("data_address: %p\n", current_block->data_location);
-        printf("data: %s\n", (char *)current_block->data_location);
+        print_malloc_block(current_block);
         printf("--- --- --- ---\n");
-
         printf("block address diff: %llu\n", (u_int64_t)current_block->next - (uint64_t)current_block);
 
         if (current_block->next != NULL)
@@ -67,7 +59,7 @@ void show_alloc_mem() {
     }
 
     printf("========================\n");
-    printf("total blocks: %d\n", total_blocks);
+    printf("total blocks: %zu\n", total_blocks);
     printf("========================\n");
 
 }
