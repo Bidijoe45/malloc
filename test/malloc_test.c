@@ -2,6 +2,8 @@
 #include <unistd.h>
 #include "libft_malloc/libft_malloc.h"
 
+#include "malloc_types.h"
+#include "malloc_state.h"
 #include "malloc_utils.h"
 #include "malloc_test.h"
 
@@ -18,6 +20,5 @@ int main() {
 
     void *m = malloc(1);
 
-    print_all();
-  
+    hexdump(g_malloc_data.zones[TINY_ZONE], g_malloc_data.tiny_zone_size);
 }

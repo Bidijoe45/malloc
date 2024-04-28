@@ -5,5 +5,6 @@
 
 void initialize_malloc();
 void print_all();
+void hexdump(void *mem, unsigned int len);
 
 #endif

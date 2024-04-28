@@ -21,6 +21,8 @@ typedef struct memory_zone {
 
 typedef struct malloc_data {
     size_t tiny_zone_size;
+    size_t tiny_zone_chunk_size;
+    size_t tiny_zone_payload_size;
     size_t small_zone_size;
     memory_zone *zones[3];
 } malloc_data;
