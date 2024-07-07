@@ -1,37 +1,54 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include <stdio.h>
+#include <stdlib.h>
 
-#include "malloc_types.h"
 #include "malloc_state.h"
+#include "malloc_types.h"
 #include "zone_manager.h"
 #include "pool_strategy.h"
 
-memory_zone *create_zone(memory_zone *last_zone, size_t size) {
-    memory_zone *map = (memory_zone *)mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);
-    map->next_zone = NULL;
+memory_zone *create_zone(zone_type type) {
+    size_t zone_size = get_zone_type_size(type);
+    memory_zone *new_zone = (memory_zone *)mmap(NULL, zone_size, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);
+    
+    if (new_zone == NULL) {
+        printf("ERROR: mmap failed\n");
+        exit(1);
+        //FIXME: What should happen if mmap fails?
+    }
+    
+    new_zone->next_zone = NULL;
 
-    if (last_zone != NULL)
-        last_zone->next_zone = map;
+    if (g_malloc_data.zones_list[type] != NULL) {
+        new_zone->next_zone = g_malloc_data.zones_list[type];
+        g_malloc_data.zones_list[type] = new_zone;
+    }
+    else 
+        g_malloc_data.zones_list[type] = new_zone;
 
-    return map;
+    return new_zone;
 }
 
-void delete_zone(memory_zone *zone) {
-    //TODO:
-    //munmap(zone, zone->);
+void delete_zone(memory_zone *zone, zone_type type) {
+    size_t zone_size = get_zone_type_size(type);
+    memory_zone *last_zone = NULL;
+    memory_zone *current_zone = g_malloc_data.zones_list[type];
+    
+    while (current_zone->next_zone != NULL) {
+
+        if (current_zone == zone) {
+            last_zone = current_zone->next_zone;
+            break;
+        }
+
+        last_zone = current_zone;
+        current_zone = current_zone->next_zone;
+    }
+
+    munmap(zone, zone_size);
 }
 
-void initialize_tiny_zone(memory_zone *zone) {
-    size_t chunk_size = getpagesize() / N_CHUNKS_IN_TINY_ZONE;
-    size_t total_chunks = N_CHUNKS_IN_TINY_ZONE;
-    g_malloc_data.tiny_zone_chunk_size = chunk_size;
-    g_malloc_data.tiny_zone_payload_size = chunk_size - (sizeof(size_t));
-    create_pool_strategy(g_malloc_data.zones[TINY_ZONE], chunk_size, total_chunks);
-
-    printf("tiny_zone_chunk_size: %zu\n", g_malloc_data.tiny_zone_chunk_size);
-}
-
-void initialize_small_zone(memory_zone *zone) {
-    //TODO: 
+size_t get_zone_type_size(zone_type type) {
+    return g_malloc_data.sizes[type].zone;
 }

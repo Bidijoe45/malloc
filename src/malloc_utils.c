@@ -5,93 +5,108 @@
 #include "malloc_state.h"
 #include "malloc_utils.h"
 #include "zone_manager.h"
-
-malloc_data g_malloc_data;
+#include "pool_strategy.h"
 
 void initialize_malloc() {
-    g_malloc_data.tiny_zone_size = getpagesize();
-    g_malloc_data.small_zone_size = getpagesize() * 4;
+    //FIXME: Borrar esto al final!
+    printf("Malloc initialization\n");
 
-    g_malloc_data.zones[TINY_ZONE] = NULL;
-    g_malloc_data.zones[SMALL_ZONE] = NULL;
-    g_malloc_data.zones[LARGE_ZONE] = NULL;
+    //FIXME: Cada size deberia iniciarlo la propia estrategia
+    g_malloc_data.sizes[SMALL_ZONE].zone = getpagesize() * 4;
+    g_malloc_data.sizes[LARGE_ZONE].zone = 0;
 
-    g_malloc_data.zones[TINY_ZONE] = create_zone(NULL, g_malloc_data.tiny_zone_size);
-    initialize_tiny_zone(g_malloc_data.zones[TINY_ZONE]);
+    g_malloc_data.zones_list[TINY_ZONE] = NULL;
+    g_malloc_data.zones_list[SMALL_ZONE] = NULL;
+    g_malloc_data.zones_list[LARGE_ZONE] = NULL;
 
-    printf("tiny zone size: %zu\n", g_malloc_data.tiny_zone_size);
-    printf("tiny zone chunk size: %zu\n", g_malloc_data.tiny_zone_chunk_size);
-    printf("tiny zone payload size: %zu\n", g_malloc_data.tiny_zone_payload_size);
+    pool_strategy_initialize();
+
+    //FIXME: Borrar esto al final!
+    printf("page size: %d\n", getpagesize());
+    printf("tiny zone size: %zu\n", g_malloc_data.sizes[TINY_ZONE].zone);
+    printf("tiny zone chunk size: %zu\n", g_malloc_data.sizes[TINY_ZONE].chunk);
+    printf("tiny zone payload size: %zu\n", g_malloc_data.sizes[TINY_ZONE].payload);
+
+    printf("small zone size: %zu\n", g_malloc_data.sizes[SMALL_ZONE].zone);
+    printf("small zone chunk size: %zu\n", g_malloc_data.sizes[SMALL_ZONE].chunk);
+    printf("small zone payload size: %zu\n", g_malloc_data.sizes[SMALL_ZONE].payload);
+    printf("\n");
 }
 
-void print_all() {
-    memory_zone *zone = g_malloc_data.zones[TINY_ZONE];
-    chunk_header *chunk = (chunk_header *)(zone + 1);
+size_metadata malloc_read_size_metadata(chunk_header *chunk) {
+    size_metadata metadata;
+    size_t size = chunk->size;
 
-    size_t total_chunks = 0;
-    while (chunk) {
-        printf("=== CHUNK ===\n");
-        printf("chunk_ptr: %p\n", chunk);
-        printf("chunk_size: %zu\n", chunk->size);
-        printf("chunk_prev: %p\n", chunk->prev_chunk);
-        printf("chunk_next: %p\n", chunk->next_chunk);
+    metadata.in_use = size & 1;
+    metadata.size = size & ~7u;
 
-        chunk = chunk->next_chunk;
-        total_chunks++;
+    return metadata;
+}
+
+void malloc_write_size_metadata(chunk_header *chunk, size_metadata metadata) {
+    chunk->size = (metadata.size & ~7) | (metadata.in_use & 1);
+}
+
+void malloc_initialize_chunk(chunk_header *chunk) {
+    chunk->prev_chunk = NULL;
+    chunk->next_chunk = NULL;
+    chunk->size = 0;
+}
+
+chunk_header *malloc_get_last_chunk(chunk_header *chunk) {
+    if (chunk == NULL)
+        return NULL;
+
+    chunk_header *current_chunk = chunk;
+
+    while (current_chunk->next_chunk != NULL) {
+        current_chunk = current_chunk->next_chunk;
     }
 
-    printf("total chunks: %zu\n", total_chunks);
+    return current_chunk;
+}
+
+chunk_header *get_chunk_header(void *ptr) {
+    return (chunk_header *)(ptr - sizeof(size_t));
 }
 
 void hexdump(void *mem, unsigned int len)
 {
-        unsigned int i, j, k;
-        
-        for(i = 0; i < len + ((len % 16) ? (16 - len % 16) : 0); i++)
-        {
-                /* print offset */
-                if(i % 16 == 0)
-                {
-                        printf("0x%06x: ", i);
-                        k = 0;
-                }
-
-                if (k == 4 || k == 12)
-                    printf(" ");
-
-                if (k == 8)
-                    printf("   ");
-                k++;
-
-                /* print hex data */
-                if(i < len)
-                {
-                        printf("%02x ", 0xFF & ((char*)mem)[i]);
-                }
-                else /* end of block, just aligning for ASCII dump */
-                {
-                        printf("   ");
-                }
-                
-                /* print ASCII dump */
-                if(i % 16 == (16 - 1))
-                {
-                        for(j = i - (16 - 1); j <= i; j++)
-                        {
-                                if(j >= len) /* end of block, not really printing */
-                                {
-                                        putchar(' ');
-                                }
-                                else if(isprint(((char*)mem)[j])) /* printable char */
-                                {
-                                        putchar(0xFF & ((char*)mem)[j]);        
-                                }
-                                else /* other char */
-                                {
-                                        putchar('.');
-                                }
-                        }
-                        putchar('\n');
-                }
+    unsigned int i, j, k;
+    
+    for(i = 0; i < len + ((len % 16) ? (16 - len % 16) : 0); i++) {
+        if(i % 16 == 0) {
+            printf("0x%06x: ", i);
+            k = 0;
         }
+
+        if (k == 4 || k == 12)
+            printf(" ");
+
+        if (k == 8)
+            printf("   ");
+        k++;
+
+        if(i < len) {
+            printf("%02x ", 0xFF & ((char*)mem)[i]);
+        }
+        else {
+            printf("   ");
+        }
+        
+        if(i % 16 == (16 - 1)) {
+            for(j = i - (16 - 1); j <= i; j++) {
+                if(j >= len) {
+                    putchar(' ');
+                }
+                else if(isprint(((char*)mem)[j])) {
+                    putchar(0xFF & ((char*)mem)[j]);        
+                }
+                else {
+                    putchar('.');
+                }
+            }
+            putchar('\n');
+        }
+    }
 }

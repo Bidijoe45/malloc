@@ -3,8 +3,8 @@
 
 #include "malloc_types.h"
 
-memory_zone *create_zone(memory_zone *last_zone, size_t size);
-void delete_zone(memory_zone *zone);
-void initialize_tiny_zone(memory_zone *zone);
+memory_zone *create_zone(zone_type type);
+void delete_zone(memory_zone *zone, zone_type type);
+size_t get_zone_type_size(zone_type type);
 
 #endif

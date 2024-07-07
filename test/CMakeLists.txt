@@ -1,7 +1,7 @@
 set(TEST_SOURCES
     malloc_test.h
     malloc_test.c
-    test.c)
+    pool_strategy_test.c)
 
 add_executable(malloc_test ${TEST_SOURCES})
 
