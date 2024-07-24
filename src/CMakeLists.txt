@@ -4,6 +4,8 @@ set(LIBRARY_SOURCES
     malloc_state.h
     pool_strategy.h
     pool_strategy.c
+    free_list_strategy.c
+    free_list_strategy.h
     zone_manager.h
     zone_manager.c
     malloc_utils.h

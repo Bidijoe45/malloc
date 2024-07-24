@@ -15,5 +15,6 @@ bool check_metadata_in_use(void *address, int in_use);
 void write_dummy_data(char *address, size_t size);
 
 void test_run_all_pool_strategy_tests();
+void test_run_all_free_list_strategy_tests();
 
 #endif

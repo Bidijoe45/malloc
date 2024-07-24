@@ -35,18 +35,39 @@ void delete_zone(memory_zone *zone, zone_type type) {
     memory_zone *last_zone = NULL;
     memory_zone *current_zone = g_malloc_data.zones_list[type];
     
-    while (current_zone->next_zone != NULL) {
+    while (current_zone != NULL) {
 
-        if (current_zone == zone) {
-            last_zone = current_zone->next_zone;
+        if (current_zone == zone)
             break;
-        }
 
         last_zone = current_zone;
         current_zone = current_zone->next_zone;
     }
 
+    if (current_zone == NULL)
+        return;
+
+    if (current_zone == g_malloc_data.zones_list[type]) {
+        g_malloc_data.zones_list[type] = current_zone->next_zone;
+        return;
+    }
+
+    if (last_zone != NULL)
+        last_zone->next_zone = current_zone->next_zone;
+
     munmap(zone, zone_size);
+}
+
+size_t count_zones_by_size(zone_type type) {
+    size_t n_zones = 0;
+    memory_zone *current_zone = g_malloc_data.zones_list[type];
+
+    while (current_zone != NULL) {
+        n_zones++;
+        current_zone = current_zone->next_zone;
+    }
+
+    return n_zones;
 }
 
 size_t get_zone_type_size(zone_type type) {

@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <signal.h>
 
 #include "libft_malloc/libft_malloc.h"
 #include "malloc_state.h"
 #include "malloc_utils.h"
 #include "pool_strategy.h"
+#include "free_list_strategy.h"
 
 malloc_data g_malloc_data;
 
@@ -12,11 +14,32 @@ long user_allocated_memory;
 long malloc_allocated_memory;
 long malloc_freed_memory;
 
+void sigv_handler(int sig_num)
+{
+    printf("SIGV catched\n");
+    hexdump(g_malloc_data.zones_list[SMALL_ZONE], g_malloc_data.sizes[SMALL_ZONE].zone);
+    printf("User allcoated memory: %ld\n", user_allocated_memory);
+    printf("Malloc allcoated memory: %ld\n", malloc_allocated_memory);
+    printf("Malloc freed memory: %ld\n", malloc_freed_memory);
+    exit(1);
+}
+
+void atexit_handler() {
+    //hexdump(g_malloc_data.zones_list[SMALL_ZONE], g_malloc_data.sizes[SMALL_ZONE].zone);
+    visualize_memory();
+    print_zone_list(g_malloc_data.zones_list[SMALL_ZONE]);
+    print_chunk_list(g_malloc_data.chunks_list[SMALL_ZONE]);
+
+    exit(0);
+}
+
 void *malloc(size_t size) {
     static bool initialized = false;
     if (initialized == false) {
         initialize_malloc();
         initialized = true;
+        //signal(SIGSEGV, sigv_handler);
+        atexit(atexit_handler);  
     }
 
     //FIXME: debug only
@@ -25,10 +48,11 @@ void *malloc(size_t size) {
     if (size <= g_malloc_data.sizes[TINY_ZONE].payload) {
         //FIXME: debug only
         malloc_allocated_memory += g_malloc_data.sizes[TINY_ZONE].chunk;
+
         return pool_strategy_allocate();
     }
     else if (size <= g_malloc_data.sizes[SMALL_ZONE].payload) {
-        //TODO: free list strategy allocaiton
+        return fls_allocate(size);
     }
     else {
         //TODO: Large strategy allocations
@@ -39,19 +63,20 @@ void *malloc(size_t size) {
     return NULL;
 }
 
+
 void free(void *ptr) {
     chunk_header *chunk = get_chunk_header(ptr);
     size_metadata chunk_metadata = malloc_read_size_metadata(chunk);
-
-    //printf("free size: %zu\n", chunk_metadata.size);
 
     if (chunk_metadata.size == g_malloc_data.sizes[TINY_ZONE].chunk) {
         //FIXME: Debug only
         malloc_freed_memory += g_malloc_data.sizes[TINY_ZONE].chunk;
         pool_strategy_free(chunk);
     }
-    else if (chunk_metadata.size == g_malloc_data.sizes[SMALL_ZONE].chunk) {
-        //TODO: free list strategy free
+    else if (chunk_metadata.size > g_malloc_data.sizes[TINY_ZONE].chunk
+            && chunk_metadata.size <= g_malloc_data.sizes[SMALL_ZONE].zone)
+    {
+        fls_free(chunk, chunk_metadata);
     }
     else {
         //TODO: Large strategy free

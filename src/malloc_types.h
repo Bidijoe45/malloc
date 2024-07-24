@@ -5,8 +5,8 @@
 
 #define N_CHUNKS_IN_TINY_ZONE 128;
 
-#define BYTE_ALIGNMENT 16
-#define ALIGN_SIZE(size) (((size) + (BYTE_ALIGNMENT ~ 1)) & ~(BYTE_ALIGNMENT - 1))
+#define ALIGNMENT 16
+#define ALIGN(size) (((size) + (ALIGNMENT-1)) & ~(ALIGNMENT-1))
 
 #define N_ZONES 3
 typedef enum zone_type {

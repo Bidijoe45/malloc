@@ -33,8 +33,6 @@ void pool_strategy_initialize_zone(memory_zone *zone) {
     g_malloc_data.chunks_list[TINY_ZONE] = first_chunk;
 }
 
-#include <stdio.h>
-
 void pool_strategy_initialize() {
     g_malloc_data.sizes[TINY_ZONE].zone = getpagesize();
     g_malloc_data.sizes[TINY_ZONE].chunk = 128;

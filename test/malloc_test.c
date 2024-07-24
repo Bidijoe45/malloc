@@ -53,7 +53,8 @@ void write_dummy_data(char *address, size_t size) {
 
 int main() {
     printf("======== Strategy zone tests ========\n");
-    test_run_all_pool_strategy_tests();
+    //test_run_all_pool_strategy_tests();
+    test_run_all_free_list_strategy_tests();
 
     //hexdump(g_malloc_data.zones_list[TINY_ZONE], g_malloc_data.sizes[TINY_ZONE].zone);
 }
