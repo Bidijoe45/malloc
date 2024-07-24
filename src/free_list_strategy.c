@@ -7,10 +7,8 @@
 #include "zone_manager.h"
 #include "malloc_utils.h"
 
-
-#include <stdio.h>
-
 void fls_initialize() {
+    g_malloc_data.zones_list[SMALL_ZONE] = NULL;
     g_malloc_data.sizes[SMALL_ZONE].zone = getpagesize() * 4;
     g_malloc_data.sizes[SMALL_ZONE].chunk = g_malloc_data.sizes[SMALL_ZONE].zone - sizeof(memory_zone);
     g_malloc_data.sizes[SMALL_ZONE].payload = g_malloc_data.sizes[SMALL_ZONE].chunk - (sizeof(size_t) * 2);
@@ -57,8 +55,6 @@ chunk_header *fls_create_chunk(chunk_header *chunk, size_metadata metadata) {
 }
 
 chunk_header *fls_initialize_zone(memory_zone *zone) {
-    //FIXME: Debug only
-    printf("fls new zone\n");
     chunk_header *chunk = (chunk_header *)(((char *)zone) + sizeof(memory_zone));
     size_metadata metadata;
 
@@ -96,7 +92,7 @@ void *fls_allocate(size_t size) {
     chunk_header *free_chunk = fls_find_best_fit_chunk(size);
 
     if (free_chunk == NULL) {
-        memory_zone *new_zone = create_zone(SMALL_ZONE);
+        memory_zone *new_zone = create_zone_by_type(SMALL_ZONE);
         free_chunk = fls_initialize_zone(new_zone);
     }
 
@@ -220,7 +216,7 @@ void fls_merge_free_chunks(chunk_header *chunk) {
         && g_malloc_data.chunks_list[SMALL_ZONE]->next_chunk != NULL)
     {
         fls_remove_chunk_from_list(left_most_chunk);
-        delete_zone(fls_get_chunk_memory_zone(left_most_chunk), SMALL_ZONE);
+        delete_zone_by_type(fls_get_chunk_memory_zone(left_most_chunk), SMALL_ZONE);
     }
 }
 

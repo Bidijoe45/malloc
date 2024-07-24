@@ -6,6 +6,8 @@ set(LIBRARY_SOURCES
     pool_strategy.c
     free_list_strategy.c
     free_list_strategy.h
+    large_strategy.c
+    large_strategy.h
     zone_manager.h
     zone_manager.c
     malloc_utils.h

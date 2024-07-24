@@ -551,14 +551,14 @@ void pool_strategy_zone_test_1() {
         return;
     }
 
-    memory_zone *new_zone_1 = create_zone(TINY_ZONE);
+    memory_zone *new_zone_1 = create_zone_by_type(TINY_ZONE);
     
     if (new_zone_1->next_zone != zone_header) {
         print_test(test_name, TEST_FAIL, "new created zone is not pointing to old zone");
         return;
     }
 
-    memory_zone *new_zone_2 = create_zone(TINY_ZONE);
+    memory_zone *new_zone_2 = create_zone_by_type(TINY_ZONE);
     
     if (new_zone_2->next_zone != new_zone_1 && new_zone_1->next_zone != zone_header) {
         print_test(test_name, TEST_FAIL, "new created zone is not pointing to old zone 2");

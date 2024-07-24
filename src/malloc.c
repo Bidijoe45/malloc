@@ -7,6 +7,7 @@
 #include "malloc_utils.h"
 #include "pool_strategy.h"
 #include "free_list_strategy.h"
+#include "large_strategy.h"
 
 malloc_data g_malloc_data;
 
@@ -55,7 +56,7 @@ void *malloc(size_t size) {
         return fls_allocate(size);
     }
     else {
-        //TODO: Large strategy allocations
+        return lgs_allocate(size);
     }
 
     printf("Malloc returned NULL\n");
@@ -79,7 +80,7 @@ void free(void *ptr) {
         fls_free(chunk, chunk_metadata);
     }
     else {
-        //TODO: Large strategy free
+        lgs_free(chunk, chunk_metadata);
     }
 }
 

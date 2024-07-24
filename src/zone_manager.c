@@ -8,8 +8,7 @@
 #include "zone_manager.h"
 #include "pool_strategy.h"
 
-memory_zone *create_zone(zone_type type) {
-    size_t zone_size = get_zone_type_size(type);
+memory_zone *create_zone(zone_type type, size_t zone_size) {
     memory_zone *new_zone = (memory_zone *)mmap(NULL, zone_size, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);
     
     if (new_zone == NULL) {
@@ -30,8 +29,11 @@ memory_zone *create_zone(zone_type type) {
     return new_zone;
 }
 
-void delete_zone(memory_zone *zone, zone_type type) {
-    size_t zone_size = get_zone_type_size(type);
+memory_zone *create_zone_by_type(zone_type type) {
+    return create_zone(type, get_zone_type_size(type));
+}
+
+void delete_zone(memory_zone *zone, zone_type type, size_t size) {
     memory_zone *last_zone = NULL;
     memory_zone *current_zone = g_malloc_data.zones_list[type];
     
@@ -55,7 +57,12 @@ void delete_zone(memory_zone *zone, zone_type type) {
     if (last_zone != NULL)
         last_zone->next_zone = current_zone->next_zone;
 
-    munmap(zone, zone_size);
+    munmap(zone, size);
+}
+
+void delete_zone_by_type(memory_zone *zone, zone_type type) {
+    size_t size = get_zone_type_size(type);
+    delete_zone(zone, type, size);
 }
 
 size_t count_zones_by_size(zone_type type) {

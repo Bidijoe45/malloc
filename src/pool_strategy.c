@@ -34,6 +34,7 @@ void pool_strategy_initialize_zone(memory_zone *zone) {
 }
 
 void pool_strategy_initialize() {
+    g_malloc_data.zones_list[TINY_ZONE] = NULL;
     g_malloc_data.sizes[TINY_ZONE].zone = getpagesize();
     g_malloc_data.sizes[TINY_ZONE].chunk = 128;
     g_malloc_data.sizes[TINY_ZONE].payload = g_malloc_data.sizes[TINY_ZONE].chunk - sizeof(size_t);
@@ -44,7 +45,7 @@ void *pool_strategy_allocate() {
     chunk_header *chunk = g_malloc_data.chunks_list[TINY_ZONE];
     
     if (chunk == NULL) {
-        memory_zone *new_zone = create_zone(TINY_ZONE);
+        memory_zone *new_zone = create_zone_by_type(TINY_ZONE);
         pool_strategy_initialize_zone(new_zone);
         chunk = g_malloc_data.chunks_list[TINY_ZONE];
     }

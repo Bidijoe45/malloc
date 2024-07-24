@@ -8,17 +8,15 @@
 #include "zone_manager.h"
 #include "pool_strategy.h"
 #include "free_list_strategy.h"
+#include "large_strategy.h"
 
 void initialize_malloc() {
     //FIXME: Borrar esto al final!
     printf("Malloc initialization\n");
 
-    g_malloc_data.zones_list[TINY_ZONE] = NULL;
-    g_malloc_data.zones_list[SMALL_ZONE] = NULL;
-    g_malloc_data.zones_list[LARGE_ZONE] = NULL;
-
     pool_strategy_initialize();
     fls_initialize();
+    lgs_initialize();
 
     //FIXME: Borrar esto al final!
     printf("page size: %d\n", getpagesize());
@@ -31,7 +29,6 @@ void initialize_malloc() {
     printf("small zone payload size: %zu\n", g_malloc_data.sizes[SMALL_ZONE].payload);
     printf("\n");
 }
-
 
 size_t malloc_size_metadata_to_size_t(size_metadata metadata) {
     return (metadata.size & ~7) | (metadata.in_use & 1);
