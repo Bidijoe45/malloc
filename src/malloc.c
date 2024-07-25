@@ -28,9 +28,6 @@ void sigv_handler(int sig_num)
 void atexit_handler() {
     //hexdump(g_malloc_data.zones_list[SMALL_ZONE], g_malloc_data.sizes[SMALL_ZONE].zone);
     visualize_memory();
-    print_zone_list(g_malloc_data.zones_list[SMALL_ZONE]);
-    print_chunk_list(g_malloc_data.chunks_list[SMALL_ZONE]);
-
     exit(0);
 }
 

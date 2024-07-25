@@ -264,6 +264,7 @@ void test_run_all_free_list_strategy_tests() {
     free_list_startegy_test_2();
     free_list_startegy_test_3();
     free_list_startegy_test_4();
+    free_list_strategy_test_5();
 
     printf("User allcoated memory: %ld\n", user_allocated_memory);
     printf("Malloc allcoated memory: %ld\n", malloc_allocated_memory);
