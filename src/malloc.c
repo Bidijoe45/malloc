@@ -32,6 +32,7 @@ void atexit_handler() {
 }
 
 void *malloc(size_t size) {
+    printf("my malloc\n");
     static bool initialized = false;
     if (initialized == false) {
         initialize_malloc();

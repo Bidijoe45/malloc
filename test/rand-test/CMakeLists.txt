@@ -15,7 +15,7 @@ endfunction()
 
 configure_file(${CMAKE_SOURCE_DIR}/test/rand-test/rand-generator.py ${CMAKE_BINARY_DIR}/test/rand-test/rand-generator.py COPYONLY)
 configure_file(${CMAKE_SOURCE_DIR}/test/rand-test/run-test.sh ${CMAKE_BINARY_DIR}/test/rand-test/run-test.sh COPYONLY)
-
+configure_file(${CMAKE_SOURCE_DIR}/test/rand-test/run-test.sh ${CMAKE_BINARY_DIR}/test/rand-test/run-test.sh COPYONLY)
 
 
 create_test("tiny_test_1" 200 30 100 1000 30)

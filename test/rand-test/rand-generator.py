@@ -23,6 +23,7 @@ def generate_allocaiton_file(file_name: str, n_allocations: int, n_reallocations
     created_frees = 0
 
     file = open(file_name, "w")
+    file.write(f"{str(n_allocations).rjust(29)}\n")
     while generating:
 
         if i < len(allocations):

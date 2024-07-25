@@ -5,6 +5,8 @@ if [ "$#" -ne 6 ]; then
     exit 1
 fi
 
-python3 rand-generator.py $1 $2 $3 $4 $5 $6
-./rand_test $1 $2
+CURRENT_DIR=$(dirname $0)
+
+python3 "$CURRENT_DIR/rand-generator.py" $1 $2 $3 $4 $5 $6
+"$CURRENT_DIR/rand_test" $1
 exit $?
