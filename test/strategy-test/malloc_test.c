@@ -13,9 +13,9 @@ void print_test(char *test_name, int result, char *reason) {
     char *result_str = (result == TEST_OK) ? "OK" : "FAILED";
     
     if (result == TEST_OK)
-        printf("TEST %s %s\n", test_name, result_str);
+        fprintf(stdout, "TEST %s %s\n", test_name, result_str);
     else
-        printf("TEST %s %s: %s\n", test_name, result_str, reason);
+        fprintf(stderr, "TEST %s %s: %s\n", test_name, result_str, reason);
 }
 
 chunk_header *get_chunk_header(void *address) {
@@ -49,11 +49,4 @@ void write_dummy_data(char *address, size_t size) {
     for (size_t i=0; i < size; i++) {
         address[i] = 100;
     }
-}
-
-int main() {
-    printf("======== Tests ========\n");
-    //test_run_all_pool_strategy_tests();
-    //test_run_all_free_list_strategy_tests();
-    //test_run_all_large_strategy_tests();
 }

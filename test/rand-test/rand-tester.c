@@ -53,10 +53,54 @@ int main(int argc, char **argv) {
         if (c == 'M') {
             fprintf(stderr, "%c %d %d\n", c, id, size);
             allocations[id] = malloc(size);
+
+            if (size >= 8) {
+                allocations[id][0] = c;
+                allocations[id][1] = c;
+                allocations[id][2] = c;
+                allocations[id][3] = c;
+                int *int_pos = (int *)(&allocations[4]);
+                *int_pos = size;
+            }
+
+            if (size >= 16) {
+                allocations[id][size - 1] = c;
+                allocations[id][size - 2] = c;
+                allocations[id][size - 3] = c;
+                allocations[id][size - 4] = c;
+                int *int_pos = (int *)(&allocations[8]);
+                *int_pos = size;
+            }
+            
+            if (size < 8) {
+                allocations[id][0] = 'M';
+            }
         }
         else if (c == 'R') {
             fprintf(stderr, "%c %d %d\n", c, id, size);
             allocations[id] = realloc(allocations[id], size);
+            
+            if (size >= 8) {
+                allocations[id][0] = c;
+                allocations[id][1] = c;
+                allocations[id][2] = c;
+                allocations[id][3] = c;
+                int *int_pos = (int *)(&allocations[4]);
+                *int_pos = size;
+            }
+
+            if (size >= 16) {
+                allocations[id][size - 1] = c;
+                allocations[id][size - 2] = c;
+                allocations[id][size - 3] = c;
+                allocations[id][size - 4] = c;
+                int *int_pos = (int *)(&allocations[8]);
+                *int_pos = size;
+            }
+            
+            if (size < 8) {
+                allocations[id][0] = 'M';
+            }
         }
         else if (c == 'F') {
             fprintf(stderr, "%c %d\n", c, id);
