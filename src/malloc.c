@@ -32,7 +32,6 @@ void atexit_handler() {
 }
 
 void *malloc(size_t size) {
-    printf("my malloc\n");
     static bool initialized = false;
     if (initialized == false) {
         initialize_malloc();
@@ -83,7 +82,7 @@ void free(void *ptr) {
 }
 
 void *realloc(void *ptr, size_t size) {
-    return 0;
+    return ptr;
 }
 
 void show_alloc_mem() {

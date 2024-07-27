@@ -13,9 +13,7 @@ void print_test(char *test_name, int result, char *reason);
 bool check_return_address_size(void *address, size_t expected_size);
 bool check_metadata_in_use(void *address, int in_use);
 void write_dummy_data(char *address, size_t size);
-
-void test_run_all_pool_strategy_tests();
-void test_run_all_free_list_strategy_tests();
-void test_run_all_large_strategy_tests();
+int fls_is_chunk_free(chunk_header *chunk);
+int fls_check_exected_size(chunk_header *chunk, size_t size);
 
 #endif

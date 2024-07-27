@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "free_list_strategy.h"
 #include "malloc_state.h"
@@ -67,21 +68,19 @@ chunk_header *fls_initialize_zone(memory_zone *zone) {
 
 chunk_header *fls_find_best_fit_chunk(size_t size) {
     chunk_header *best_fit_chunk = NULL;
-    size_t best_fit_size_delta = -1;
+    size_t best_fit_size_delta = SIZE_MAX;
     chunk_header *current_chunk = g_malloc_data.chunks_list[SMALL_ZONE];
+    size_t aligned_size = ALIGN(size + sizeof(size_t) * 2);
 
     while (current_chunk != NULL) {
         size_metadata current_metadata = malloc_read_size_metadata(current_chunk);
-        size_t size_delta = llabs((ssize_t)current_metadata.size - (ssize_t)ALIGN(size));
+        size_t size_delta = llabs((ssize_t)current_metadata.size - (ssize_t)aligned_size);
 
-        if (current_metadata.size < ALIGN(size)
-            || best_fit_size_delta < size_delta) {
-            current_chunk = current_chunk->next_chunk;
-            continue;
+        if (current_metadata.size >= aligned_size && size_delta < best_fit_size_delta) {
+            best_fit_size_delta = size_delta;
+            best_fit_chunk = current_chunk;
         }
 
-        best_fit_size_delta = current_metadata.size;
-        best_fit_chunk = current_chunk;
         current_chunk = current_chunk->next_chunk;
     }    
 
@@ -133,6 +132,11 @@ memory_zone *fls_get_chunk_memory_zone(chunk_header *chunk) {
         memory_zone *zone_end = (memory_zone *)(((char *)zone) + g_malloc_data.sizes[SMALL_ZONE].zone);
         if ((char *)zone < (char *)chunk && (char *)chunk < (char *)zone_end)
             return zone;
+
+        if (zone->next_zone == NULL) {
+            fprintf(stderr, "ERROR: chunk does not belong to any zone!\n");
+            return NULL;
+        }
         zone = zone->next_zone;
     }
 

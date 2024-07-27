@@ -8,6 +8,7 @@
 #include "malloc_state.h"
 #include "malloc_utils.h"
 #include "malloc_test.h"
+#include "free_list_strategy.h"
 
 void print_test(char *test_name, int result, char *reason) {
     char *result_str = (result == TEST_OK) ? "OK" : "FAILED";
@@ -49,4 +50,35 @@ void write_dummy_data(char *address, size_t size) {
     for (size_t i=0; i < size; i++) {
         address[i] = 100;
     }
+}
+
+int fls_check_exected_size(chunk_header *chunk, size_t size) {
+    size_t expected_size = ALIGN(size + sizeof(size_t) * 2);
+
+    if (expected_size == size)
+        return 1;
+
+    if (size > expected_size
+        && size < (expected_size + g_malloc_data.sizes[TINY_ZONE].chunk))
+    {
+        printf("chunk: %p -> size is bigger than expected size, \
+             but should be in boundaries\n", chunk);
+        return 1;
+    }
+
+    return 0;
+}
+
+int fls_is_chunk_free(chunk_header *chunk) {
+    memory_zone *chunk_zone = fls_get_chunk_memory_zone(chunk);
+
+    if (chunk_zone == NULL)
+        return 1;
+    
+    size_metadata metadata = malloc_read_size_metadata(chunk);
+    if (metadata.in_use == 0) {
+        return 1;
+    }
+
+    return 0;
 }

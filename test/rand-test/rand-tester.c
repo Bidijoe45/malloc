@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
                 allocations[id][1] = c;
                 allocations[id][2] = c;
                 allocations[id][3] = c;
-                int *int_pos = (int *)(&allocations[4]);
+                int *int_pos = (int *)(&allocations[id][4]);
                 *int_pos = size;
             }
 
@@ -68,7 +68,7 @@ int main(int argc, char **argv) {
                 allocations[id][size - 2] = c;
                 allocations[id][size - 3] = c;
                 allocations[id][size - 4] = c;
-                int *int_pos = (int *)(&allocations[8]);
+                int *int_pos = (int *)(&allocations[id][size - 8]);
                 *int_pos = size;
             }
             
@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
                 allocations[id][1] = c;
                 allocations[id][2] = c;
                 allocations[id][3] = c;
-                int *int_pos = (int *)(&allocations[4]);
+                int *int_pos = (int *)(&allocations[id][4]);
                 *int_pos = size;
             }
 
@@ -94,7 +94,7 @@ int main(int argc, char **argv) {
                 allocations[id][size - 2] = c;
                 allocations[id][size - 3] = c;
                 allocations[id][size - 4] = c;
-                int *int_pos = (int *)(&allocations[8]);
+                int *int_pos = (int *)(&allocations[id][size - 8]);
                 *int_pos = size;
             }
             

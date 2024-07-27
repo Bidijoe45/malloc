@@ -1,3 +1,3 @@
 #!/bin/bash
 
-./build/test/malloc_test
+ctest --test-dir build
