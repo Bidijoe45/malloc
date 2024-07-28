@@ -45,7 +45,10 @@ void *pool_strategy_allocate() {
     chunk_header *chunk = g_malloc_data.chunks_list[TINY_ZONE];
     
     if (chunk == NULL) {
-        memory_zone *new_zone = create_zone_by_type(TINY_ZONE);
+        memory_zone *new_zone = zone_mgr_create_by_type(TINY_ZONE);
+        if (new_zone == NULL)
+            return NULL;
+
         pool_strategy_initialize_zone(new_zone);
         chunk = g_malloc_data.chunks_list[TINY_ZONE];
     }

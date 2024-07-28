@@ -47,8 +47,15 @@ bool check_metadata_in_use(void *address, int in_use) {
 }
 
 void write_dummy_data(char *address, size_t size) {
-    for (size_t i=0; i < size; i++) {
-        address[i] = 100;
+    char c = 33;
+
+    for (size_t i=0; i < size; i++) {    
+        address[i] = c;
+
+        if (c == 126)
+            c = 33;
+        else
+            c++;
     }
 }
 

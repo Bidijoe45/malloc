@@ -33,20 +33,20 @@ int main() {
         return 1;
     }
 
-    size_t zone_size = get_zone_type_size(TINY_ZONE);
+    size_t zone_size = zone_mgr_get_type_size(TINY_ZONE);
     if (zone_size != g_malloc_data.sizes[TINY_ZONE].zone) {
         print_test(test_name, TEST_FAIL, "Invalid zone size");
         return 1;
     }
 
-    memory_zone *new_zone_1 = create_zone_by_type(TINY_ZONE);
+    memory_zone *new_zone_1 = zone_mgr_create_by_type(TINY_ZONE);
     
     if (new_zone_1->next_zone != zone_header) {
         print_test(test_name, TEST_FAIL, "new created zone is not pointing to old zone");
         return 1;
     }
 
-    memory_zone *new_zone_2 = create_zone_by_type(TINY_ZONE);
+    memory_zone *new_zone_2 = zone_mgr_create_by_type(TINY_ZONE);
     
     if (new_zone_2->next_zone != new_zone_1 && new_zone_1->next_zone != zone_header) {
         print_test(test_name, TEST_FAIL, "new created zone is not pointing to old zone 2");

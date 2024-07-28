@@ -28,6 +28,7 @@ create_test(pool_strategy pool_strategy_chunk_test_1)
 create_test(pool_strategy pool_strategy_chunk_test_2)
 create_test(pool_strategy pool_strategy_init_test)
 create_test(pool_strategy pool_strategy_zone_test_1)
+create_test(pool_strategy pool_strategy_realloc_test_1)
 
 #free list strategy tests
 create_test(free_list_strategy free_list_strategy_test_1)
@@ -37,3 +38,7 @@ create_test(free_list_strategy free_list_strategy_test_4)
 create_test(free_list_strategy free_list_strategy_test_5)
 
 #large strategy tests
+
+#all strategies mixed
+create_test(mix_strategy mix_strategy_test_1)
+create_test(mix_strategy mix_strategy_test_2)

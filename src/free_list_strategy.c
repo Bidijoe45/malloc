@@ -91,7 +91,10 @@ void *fls_allocate(size_t size) {
     chunk_header *free_chunk = fls_find_best_fit_chunk(size);
 
     if (free_chunk == NULL) {
-        memory_zone *new_zone = create_zone_by_type(SMALL_ZONE);
+        memory_zone *new_zone = zone_mgr_create_by_type(SMALL_ZONE);
+        if (new_zone == NULL)
+            return NULL;
+    
         free_chunk = fls_initialize_zone(new_zone);
     }
 
@@ -105,9 +108,6 @@ void *fls_allocate(size_t size) {
         allocation_chunk_size = free_chunk_metadata.size;
         remaining_size = 0;
     }
-
-    //FIXME: Debug only
-    malloc_allocated_memory += allocation_chunk_size;
 
     size_metadata allocated_chunk_metadata = {.size= allocation_chunk_size, .in_use= 1};
     chunk_header *allocated_chunk = fls_create_chunk(free_chunk, allocated_chunk_metadata);
@@ -133,10 +133,6 @@ memory_zone *fls_get_chunk_memory_zone(chunk_header *chunk) {
         if ((char *)zone < (char *)chunk && (char *)chunk < (char *)zone_end)
             return zone;
 
-        if (zone->next_zone == NULL) {
-            fprintf(stderr, "ERROR: chunk does not belong to any zone!\n");
-            return NULL;
-        }
         zone = zone->next_zone;
     }
 
@@ -220,13 +216,11 @@ void fls_merge_free_chunks(chunk_header *chunk) {
         && g_malloc_data.chunks_list[SMALL_ZONE]->next_chunk != NULL)
     {
         fls_remove_chunk_from_list(left_most_chunk);
-        delete_zone_by_type(fls_get_chunk_memory_zone(left_most_chunk), SMALL_ZONE);
+        zone_mgr_delete_by_type(fls_get_chunk_memory_zone(left_most_chunk), SMALL_ZONE);
     }
 }
 
 void fls_free(chunk_header *chunk, size_metadata metadata) {
-    //FIXME: Debug only
-    malloc_freed_memory += metadata.size;
 
     chunk->prev_chunk = NULL;
     chunk->next_chunk = NULL;
