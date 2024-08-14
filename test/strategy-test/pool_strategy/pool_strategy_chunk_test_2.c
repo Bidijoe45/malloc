@@ -14,7 +14,7 @@
 int main() {
     char *test_name = "test pool strategy chunk 2";
 
-    int payload_size = g_malloc_data.sizes[TINY_ZONE].payload;
+    int payload_size = 120;
     char *mem = malloc(1);
     chunk_header *chunk = get_chunk_header(mem);
     memory_zone *zone_header = (memory_zone *)((char*)chunk - sizeof(memory_zone));

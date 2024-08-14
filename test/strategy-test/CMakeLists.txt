@@ -36,8 +36,13 @@ create_test(free_list_strategy free_list_strategy_test_2)
 create_test(free_list_strategy free_list_strategy_test_3)
 create_test(free_list_strategy free_list_strategy_test_4)
 create_test(free_list_strategy free_list_strategy_test_5)
+create_test(free_list_strategy free_list_strategy_test_6)
+#create_test(free_list_strategy free_list_strategy_test_full_range)
 
 #large strategy tests
+create_test(large_strategy large_strategy_test_1)
+create_test(large_strategy large_strategy_test_2)
+create_test(large_strategy large_strategy_test_3)
 
 #all strategies mixed
 create_test(mix_strategy mix_strategy_test_1)

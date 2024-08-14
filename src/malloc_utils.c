@@ -195,35 +195,26 @@ void visualize_memory(void)
         }
     }  
 
-    /*
-    for (zone_header_t *large_zone = heap_g.large_zones_head; large_zone != NULL; large_zone = large_zone->next)
+    for (memory_zone *large_zone = g_malloc_data.zones_list[LARGE_ZONE]; large_zone != NULL; large_zone = large_zone->next_zone)
     {
-        printf("| %p " GREEN "large zone header (%zu bytes): %p %p" NO_COLOR " |\n",
+        printf("| %p " GREEN "large zone header (%zu bytes): %p" NO_COLOR " |\n",
             large_zone,
-            ZONE_HEADER_T_SIZE,
-            large_zone->prev,
-            large_zone->next);
-        size_t *chunk_ptr = (size_t *)((uint8_t *)large_zone + ZONE_HEADER_T_SIZE);
-        size_t chunk_size = CHUNK_SIZE_WITHOUT_FLAGS(*chunk_ptr);
-        uint8_t in_use_bit_flag = (uint8_t)(*chunk_ptr & IN_USE);
-        uint8_t prev_free_bit_flag = (uint8_t)(*chunk_ptr & PREVIOUS_FREE);
-        if ((*chunk_ptr & IN_USE) == IN_USE)
+            sizeof(memory_zone),
+            large_zone->next_zone);
+        size_t *chunk_ptr = (size_t *)((uint8_t *)large_zone + sizeof(memory_zone));
+        size_metadata chunk_metadata = malloc_read_size_metadata((chunk_header *)chunk_ptr);
+        size_t chunk_size = chunk_metadata.size;
+        uint8_t in_use_bit_flag = chunk_metadata.in_use;
+        if (in_use_bit_flag)
         {
-            size_t in_use_bytes = chunk_size - SIZE_T_SIZE;
-            printf("| %p " BLUE "chunk header (%zu bytes): %zu %d%d" NO_COLOR " | " MAGENTA "in use body (%zu bytes)" NO_COLOR " |\n" ,
-                chunk_ptr, SIZE_T_SIZE, chunk_size, prev_free_bit_flag, in_use_bit_flag, // chunk header
+            size_t in_use_bytes = chunk_size - sizeof(size_t);
+            printf("| %p " BLUE "chunk header (%zu bytes): %zu %d" NO_COLOR " | " MAGENTA "in use body (%zu bytes)" NO_COLOR " |\n" ,
+                chunk_ptr, sizeof(size_t), chunk_size, in_use_bit_flag, // chunk header
                 in_use_bytes); // chunk data
         }
-        else // should never go in here
-        {
-            free_chunk_header_t *free_chunk_ptr = (free_chunk_header_t *)chunk_ptr;
-            size_t free_bytes = chunk_size - sizeof(free_chunk_header_t) - SIZE_T_SIZE;
-            printf("| %p " BLUE "chunk header (%zu bytes): %zu %d%d %p %p" NO_COLOR " | " YELLOW "free bytes (%zu bytes)" NO_COLOR " |\n" ,
-                chunk_ptr, sizeof(free_chunk_header_t), chunk_size, prev_free_bit_flag, in_use_bit_flag, free_chunk_ptr->prev, free_chunk_ptr->next, // chunk header
-                free_bytes); // free space
-        }
+        
     }
-    */
+
 }
 
 void print_chunk_list(chunk_header *chunk) {

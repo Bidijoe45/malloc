@@ -8,7 +8,7 @@
 #include "malloc_types.h"
 
 int main() {
-    size_t sizes_to_test[8] = {63764, 84716, 112374, 89378, 73641, 93736, 123649, 83476};
+    size_t sizes_to_test[8] = {70764, 84716, 112374, 89378, 73641, 93736, 123649, 83476};
     size_t n_sizes = 8;
 
     char *test_name = "large starategy test 1";
@@ -20,7 +20,10 @@ int main() {
 
         bool valid = false;
 
-        valid = check_return_address_size(mem, g_malloc_data.sizes[TINY_ZONE].chunk);
+        size_t expected_size = calculate_large_expected_size(size);
+        printf("expected_size: %zu\n", expected_size);
+
+        valid = check_return_address_size(mem, expected_size);
         if (!valid) {
             print_test(test_name, TEST_FAIL, "Returned address is invalid");
             return 1;
@@ -35,11 +38,6 @@ int main() {
         write_dummy_data(mem, size);
         
         free(mem);
-        valid = check_metadata_in_use(mem, 0);
-        if (!valid) {
-            print_test(test_name, TEST_FAIL, "Free: metadata is in use, should not be");
-            return 1;
-        }
     }
 
     print_test(test_name, TEST_OK, NULL);

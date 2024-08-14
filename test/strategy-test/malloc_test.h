@@ -15,5 +15,6 @@ bool check_metadata_in_use(void *address, int in_use);
 void write_dummy_data(char *address, size_t size);
 int fls_is_chunk_free(chunk_header *chunk);
 int fls_check_exected_size(chunk_header *chunk, size_t size);
+size_t calculate_large_expected_size(size_t size);
 
 #endif

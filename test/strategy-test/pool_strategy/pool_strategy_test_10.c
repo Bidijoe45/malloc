@@ -12,13 +12,10 @@
 #include "zone_manager.h"
 
 int main() {
-    size_t sizes_to_test[8] = {1, 10, 20, 30, 50, 80, 100, g_malloc_data.sizes[TINY_ZONE].chunk};
-    size_t n_sizes = 8;
-
     char *test_name = "test pool strategy 10";
     size_t n_pointers = 10000;
     char *pointers[n_pointers];
-    int size = g_malloc_data.sizes[TINY_ZONE].payload;
+    int size = 120;
     bool valid = false;
 
     for (size_t i=0; i < n_pointers; i++) {

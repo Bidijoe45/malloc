@@ -59,6 +59,10 @@ void write_dummy_data(char *address, size_t size) {
     }
 }
 
+size_t calculate_large_expected_size(size_t size) {
+    return ALIGN( (ALIGN(size + sizeof(size_t) * 2)) + sizeof(memory_zone) );
+}
+
 int fls_check_exected_size(chunk_header *chunk, size_t size) {
     size_t expected_size = ALIGN(size + sizeof(size_t) * 2);
 

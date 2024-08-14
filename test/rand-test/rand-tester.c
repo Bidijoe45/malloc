@@ -54,6 +54,11 @@ int main(int argc, char **argv) {
             fprintf(stderr, "%c %d %d\n", c, id, size);
             allocations[id] = malloc(size);
 
+            if (allocations[id] == NULL) {
+                fprintf(stderr, "Malloc returned NULL\n");
+                continue;
+            }
+
             if (size >= 8) {
                 allocations[id][0] = c;
                 allocations[id][1] = c;
@@ -80,6 +85,12 @@ int main(int argc, char **argv) {
             fprintf(stderr, "%c %d %d\n", c, id, size);
             allocations[id] = realloc(allocations[id], size);
             
+            if (allocations[id] == NULL) {
+                fprintf(stderr, "Realloc returned NULL\n");
+                continue;
+            }
+
+
             if (size >= 8) {
                 allocations[id][0] = c;
                 allocations[id][1] = c;

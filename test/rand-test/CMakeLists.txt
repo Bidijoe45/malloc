@@ -19,7 +19,7 @@ configure_file(${CMAKE_SOURCE_DIR}/test/rand-test/run-test.sh ${CMAKE_BINARY_DIR
 
 #test args: test_name n_allocations n_reallocations lower_bound upper_bound initial_offset
 
-#pool strategy tests
+#pool rand strategy tests
 create_test("rand_ps_test_1" 100 0 1 120 30)
 create_test("rand_ps_test_2" 200 0 1 120 50)
 create_test("rand_ps_test_3" 400 0 1 120 70)
@@ -28,7 +28,7 @@ create_test("rand_ps_test_5" 1600 0 1 120 300)
 create_test("rand_ps_test_6" 1600 300 1 120 300)
 create_test("rand_ps_test_8" 2000 800 1 120 400)
 
-#free list strategy tests
+#free rand list strategy tests
 create_test("rand_fls_test_1" 50 0 130 60000 20)
 create_test("rand_fls_test_2" 100 0 130 60000 40)
 create_test("rand_fls_test_3" 200 0 130 60000 50)
@@ -38,5 +38,24 @@ create_test("rand_fls_test_6" 600 0 130 60000 200)
 create_test("rand_fls_test_7" 1000 0 130 60000 400)
 create_test("rand_fls_test_8" 10000 0 130 60000 1000)
 
-#large strategy test
-#create_test("lgs_test_1" 50 30 130 60000 30)
+#large rand strategy test
+create_test("rand_lgs_test_1" 50 0 66000 100000 20)
+create_test("rand_lgs_test_2" 100 0 66000 100000 40)
+create_test("rand_lgs_test_3" 200 0 66000 100000 50)
+create_test("rand_lgs_test_4" 200 0 66000 100000 100)
+create_test("rand_lgs_test_5" 600 0 66000 100000 100)
+create_test("rand_lgs_test_6" 600 0 66000 100000 200)
+create_test("rand_lgs_test_7" 1000 0 66000 100000 400)
+create_test("rand_lgs_test_8" 10000 0 66000 100000 1000)
+create_test("rand_lgs_test_9" 10000 0 66000 1000000 1000)
+
+#mix rand strategy test
+create_test("rand_mix_test_1" 50 0 0 100000 20)
+create_test("rand_mix_test_2" 100 0 0 100000 40)
+create_test("rand_mix_test_3" 200 0 0 100000 50)
+create_test("rand_mix_test_4" 200 0 0 100000 100)
+create_test("rand_mix_test_5" 600 0 0 100000 100)
+create_test("rand_mix_test_6" 600 0 0 100000 200)
+create_test("rand_mix_test_7" 1000 0 0 150000 400)
+create_test("rand_mix_test_8" 10000 0 0 150000 1000)
+create_test("rand_mix_test_9" 10000 0 0 1000000 1000)

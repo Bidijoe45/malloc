@@ -12,7 +12,7 @@
 #include "zone_manager.h"
 
 int main() {
-    size_t sizes_to_test[8] = {1, 10, 20, 30, 50, 80, 100, g_malloc_data.sizes[TINY_ZONE].chunk};
+    size_t sizes_to_test[8] = {1, 10, 20, 30, 50, 80, 100, 120};
     size_t n_sizes = 8;
 
     char *test_name = "test pool strategy 3";

@@ -70,13 +70,12 @@ chunk_header *fls_find_best_fit_chunk(size_t size) {
     chunk_header *best_fit_chunk = NULL;
     size_t best_fit_size_delta = SIZE_MAX;
     chunk_header *current_chunk = g_malloc_data.chunks_list[SMALL_ZONE];
-    size_t aligned_size = ALIGN(size + sizeof(size_t) * 2);
 
     while (current_chunk != NULL) {
         size_metadata current_metadata = malloc_read_size_metadata(current_chunk);
-        size_t size_delta = llabs((ssize_t)current_metadata.size - (ssize_t)aligned_size);
+        size_t size_delta = llabs((ssize_t)current_metadata.size - (ssize_t)size);
 
-        if (current_metadata.size >= aligned_size && size_delta < best_fit_size_delta) {
+        if (current_metadata.size >= size && size_delta < best_fit_size_delta) {
             best_fit_size_delta = size_delta;
             best_fit_chunk = current_chunk;
         }
@@ -101,15 +100,14 @@ void *fls_allocate(size_t size) {
     fls_remove_chunk_from_list(free_chunk);
 
     size_metadata free_chunk_metadata = malloc_read_size_metadata(free_chunk);
-    size_t allocation_chunk_size = ALIGN(size + sizeof(size_t) * 2);
-    size_t remaining_size = free_chunk_metadata.size - allocation_chunk_size;
+    size_t remaining_size = free_chunk_metadata.size - size;
 
     if (remaining_size <= g_malloc_data.sizes[TINY_ZONE].chunk) {
-        allocation_chunk_size = free_chunk_metadata.size;
+        size = free_chunk_metadata.size;
         remaining_size = 0;
     }
 
-    size_metadata allocated_chunk_metadata = {.size= allocation_chunk_size, .in_use= 1};
+    size_metadata allocated_chunk_metadata = {.size= size, .in_use= 1};
     chunk_header *allocated_chunk = fls_create_chunk(free_chunk, allocated_chunk_metadata);
     size_t *allocated_chunk_end_size = malloc_get_end_size(allocated_chunk, allocated_chunk_metadata.size);
 
