@@ -13,10 +13,25 @@
 void print_test(char *test_name, int result, char *reason) {
     char *result_str = (result == TEST_OK) ? "OK" : "FAILED";
     
-    if (result == TEST_OK)
-        fprintf(stdout, "TEST %s %s\n", test_name, result_str);
-    else
-        fprintf(stderr, "TEST %s %s: %s\n", test_name, result_str, reason);
+    if (result == TEST_OK) {
+        //fprintf(stdout, "TEST %s %s\n", test_name, result_str);
+        malloc_print("TEST ");
+        malloc_print(test_name);
+        malloc_print(" ");
+        malloc_print(result_str);
+        malloc_print("\n");
+    }
+    else {
+        //fprintf(stderr, "TEST %s %s: %s\n", test_name, result_str, reason);
+
+        malloc_print("TEST ");
+        malloc_print(test_name);
+        malloc_print(" ");
+        malloc_print(result_str);
+        malloc_print(" ");
+        malloc_print(reason);
+        malloc_print("\n");
+    }
 }
 
 chunk_header *get_chunk_header(void *address) {
@@ -72,8 +87,8 @@ int fls_check_exected_size(chunk_header *chunk, size_t size) {
     if (size > expected_size
         && size < (expected_size + g_malloc_data.sizes[TINY_ZONE].chunk))
     {
-        printf("chunk: %p -> size is bigger than expected size, \
-             but should be in boundaries\n", chunk);
+        //printf("chunk: %p -> size is bigger than expected size, \
+        //     but should be in boundaries\n", chunk);
         return 1;
     }
 

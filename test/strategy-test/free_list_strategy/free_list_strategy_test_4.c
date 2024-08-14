@@ -40,7 +40,7 @@ int main() {
         chunk_header *chunk = get_chunk_header(pointers[i]);
 
         if (!fls_is_chunk_free(chunk)) {
-            printf("chunk: %p\n", chunk);
+            //printf("chunk: %p\n", chunk);
             print_test(test_name, TEST_FAIL, "chunk should not be in use");
             return 1;
         }
@@ -56,13 +56,13 @@ int main() {
         size_metadata metadata = malloc_read_size_metadata(chunk);
         if (fls_check_exected_size(chunk, metadata.size)) {
             print_test(test_name, TEST_FAIL, "invalid chunk size");
-            printf("failed at chunk i: %d\n", i);
+            //printf("failed at chunk i: %d\n", i);
             return 1;
         }
 
         if (metadata.in_use != 1) {
             print_test(test_name, TEST_FAIL, "chunk should be in use");
-            printf("failed at chunk i: %d\n", i);
+            //printf("failed at chunk i: %d\n", i);
             return 1;
         }
     }
@@ -87,13 +87,13 @@ int main() {
         size_metadata metadata = malloc_read_size_metadata(chunk);
         if (fls_check_exected_size(chunk, metadata.size)) {
             print_test(test_name, TEST_FAIL, "invalid chunk size");
-            printf("failed at chunk i: %d\n", i);
+            //printf("failed at chunk i: %d\n", i);
             return 1;
         }
 
         if (metadata.in_use != 1) {
             print_test(test_name, TEST_FAIL, "chunk should be in use");
-            printf("failed at chunk i: %d\n", i);
+            //printf("failed at chunk i: %d\n", i);
             return 1;
         }
     }

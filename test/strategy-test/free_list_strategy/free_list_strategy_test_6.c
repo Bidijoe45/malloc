@@ -11,7 +11,10 @@
 int main() {
     char *test_name = "free list strategy test 6";
 
-    char *mem = malloc(63323);
+    char *mem = malloc(1000);
+
+    visualize_memory();
+
     free(mem);
 
     print_test(test_name, TEST_OK, NULL);

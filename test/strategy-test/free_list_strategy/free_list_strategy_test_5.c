@@ -39,7 +39,7 @@ int main() {
         chunk_header *chunk = get_chunk_header(pointers[i]);
 
         if (!fls_is_chunk_free(chunk)) {
-            printf("chunk: %p\n", chunk);
+            //printf("chunk: %p\n", chunk);
             print_test(test_name, TEST_FAIL, "chunk should not be in use");
             return 1;
         }

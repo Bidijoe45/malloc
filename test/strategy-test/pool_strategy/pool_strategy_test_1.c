@@ -21,9 +21,6 @@ int main() {
 
         int size = sizes_to_test[i];
 
-        printf("size to test: %d\n", size);
-        printf("size to test: %d\n", size);
-
         char *mem = malloc(size);
 
         bool valid = false;

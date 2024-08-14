@@ -27,13 +27,13 @@ int main() {
 
         if (fls_check_exected_size(chunk, metadata.size)) {
             print_test(test_name, TEST_FAIL, "invalid chunk size");
-            printf("failed at chunk i: %d\n", i);
+            //printf("failed at chunk i: %d\n", i);
             return 1;
         }
 
         if (metadata.in_use != 1) {
             print_test(test_name, TEST_FAIL, "chunk should be in use");
-            printf("failed at chunk i: %d\n", i);
+            //printf("failed at chunk i: %d\n", i);
             return 1;
         }
     }

@@ -21,8 +21,6 @@ int main() {
         bool valid = false;
 
         size_t expected_size = calculate_large_expected_size(size);
-        printf("expected_size: %zu\n", expected_size);
-
         valid = check_return_address_size(mem, expected_size);
         if (!valid) {
             print_test(test_name, TEST_FAIL, "Returned address is invalid");

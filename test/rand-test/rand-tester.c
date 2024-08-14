@@ -7,14 +7,14 @@
 int main(int argc, char **argv) {
 
     if (argc != 2) {
-        fprintf(stderr, "invalid arguments :(\n");
+        //fprintf(stderr, "invalid arguments :(\n");
         return 1;
     }
     
     int file = open(argv[1], 0);
 
     if (file == -1) {
-        fprintf(stderr, "Invalid file");
+        //fprintf(stderr, "Invalid file");
         exit(1);
     }
 
@@ -51,11 +51,11 @@ int main(int argc, char **argv) {
         int size = atoi(s_size);
 
         if (c == 'M') {
-            fprintf(stderr, "%c %d %d\n", c, id, size);
+            //fprintf(stderr, "%c %d %d\n", c, id, size);
             allocations[id] = malloc(size);
 
             if (allocations[id] == NULL) {
-                fprintf(stderr, "Malloc returned NULL\n");
+                //fprintf(stderr, "Malloc returned NULL\n");
                 continue;
             }
 
@@ -82,11 +82,11 @@ int main(int argc, char **argv) {
             }
         }
         else if (c == 'R') {
-            fprintf(stderr, "%c %d %d\n", c, id, size);
+            //fprintf(stderr, "%c %d %d\n", c, id, size);
             allocations[id] = realloc(allocations[id], size);
             
             if (allocations[id] == NULL) {
-                fprintf(stderr, "Realloc returned NULL\n");
+                //fprintf(stderr, "Realloc returned NULL\n");
                 continue;
             }
 
@@ -114,7 +114,7 @@ int main(int argc, char **argv) {
             }
         }
         else if (c == 'F') {
-            fprintf(stderr, "%c %d\n", c, id);
+            //fprintf(stderr, "%c %d\n", c, id);
             free(allocations[id]);
         }
 

@@ -51,11 +51,9 @@ void free(void *ptr) {
     else if (chunk_metadata.size > g_malloc_data.sizes[TINY_ZONE].chunk
             && chunk_metadata.size <= g_malloc_data.sizes[SMALL_ZONE].chunk)
     {
-        printf("fls free\n");
         fls_free(chunk, chunk_metadata);
     }
     else {
-        printf("lgs free\n");
         lgs_free(chunk, chunk_metadata);
     }
 }
@@ -72,11 +70,9 @@ void *realloc(void *ptr, size_t size) {
         return ptr;
     }
 
-    size = ALIGN(size + sizeof(size_t));
-
     char *new_mem = malloc(size);
     size_t i=0;
-    while (i < size) {
+    while (i < metadata.size) {
         new_mem[i] = ((char *)ptr)[i];
         i++;
     }
@@ -86,8 +82,8 @@ void *realloc(void *ptr, size_t size) {
 }
 
 void show_alloc_mem() {
-    printf("=== ALLOCATED MEMORY ===\n");
+    //printf("=== ALLOCATED MEMORY ===\n");
 
 
-    printf("=== ================ ===\n");
+    //printf("=== ================ ===\n");
 }

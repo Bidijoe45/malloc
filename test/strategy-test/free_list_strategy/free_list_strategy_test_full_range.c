@@ -22,7 +22,6 @@ int main() {
     int i = 0;
     while (i < total_sizes) {
         size_t size = min_size + i;
-        printf("allocating: %zu\n", size);
         allocations[i] = malloc(size);
         allocations[i][0] = 'X';
         allocations[i][size - 1] = 'X';
@@ -31,7 +30,6 @@ int main() {
 
     i = 0;
     while (i < total_sizes) {
-        printf("freeing: %zu\n", min_size + i);
         free(allocations[i]);
         i++;
     }

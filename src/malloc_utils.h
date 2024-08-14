@@ -18,4 +18,5 @@ void hexdump(void *mem, unsigned int len);
 void visualize_memory(void);
 void print_chunk_list(chunk_header *chunk);
 void print_zone_list(memory_zone *zone);
+void malloc_print(char *str);
 #endif
