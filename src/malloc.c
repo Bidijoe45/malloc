@@ -27,10 +27,12 @@ void *malloc(size_t size) {
     
     size = ALIGN(size + sizeof(size_t) * 2);
     
-    if (size <= g_malloc_data.sizes[SMALL_ZONE].chunk) {
+    if (size <= g_malloc_data.sizes[SMALL_ZONE].payload) {
         return fls_allocate(size);
     }
-    else {
+    
+    if (size > g_malloc_data.sizes[SMALL_ZONE].payload) {
+        size = ALIGN(size + sizeof(memory_zone));
         return lgs_allocate(size);
     }
 
@@ -75,11 +77,10 @@ void *realloc(void *ptr, size_t size) {
     if (new_mem == NULL)
         return NULL;
 
-    size_t i=0;
-    size_t size_to_copy = size < metadata.size ? size : metadata.size; 
-    while (i < size_to_copy) {
-        new_mem[i] = ((char *)ptr)[i];
-        i++;
+    size_t size_to_copy = size < (metadata.size - sizeof(size_t)) ? size : metadata.size - sizeof(size_t);
+    for (size_t i=0; i < size_to_copy; i++) {
+        char byte = ((char *)ptr)[i];
+        new_mem[i] = byte;
     }
     free(ptr);
 

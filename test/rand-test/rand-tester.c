@@ -6,15 +6,18 @@
 
 int main(int argc, char **argv) {
 
+    //memcpy(0x394857, 0x39412312857, 1123);
+
     if (argc != 2) {
         //fprintf(stderr, "invalid arguments :(\n");
+        write(1, "Invalid argument\n", strlen("Invalid argument\n"));
         return 1;
     }
     
     int file = open(argv[1], 0);
 
     if (file == -1) {
-        //fprintf(stderr, "Invalid file");
+        write(1, "Invalid file\n", strlen("Invalid file\n"));
         exit(1);
     }
 

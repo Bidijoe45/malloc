@@ -9,7 +9,6 @@ void lgs_initialize() {
 }
 
 void *lgs_allocate(size_t size) {
-    size = ALIGN(size + sizeof(memory_zone));
     memory_zone *new_zone = zone_mgr_create(LARGE_ZONE, size);
 
     if (new_zone == NULL)
