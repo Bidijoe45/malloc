@@ -71,8 +71,13 @@ void *realloc(void *ptr, size_t size) {
     }
 
     char *new_mem = malloc(size);
+
+    if (new_mem == NULL)
+        return NULL;
+
     size_t i=0;
-    while (i < metadata.size) {
+    size_t size_to_copy = size < metadata.size ? size : metadata.size; 
+    while (i < size_to_copy) {
         new_mem[i] = ((char *)ptr)[i];
         i++;
     }

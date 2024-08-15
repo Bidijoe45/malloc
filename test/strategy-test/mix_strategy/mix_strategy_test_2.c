@@ -95,7 +95,7 @@ int main() {
     write_dummy_data(small_mem2, 20000);
 
     memset(&tmp_mem_buff, 0, tmp_buff_size);
-    memcpy(&tmp_mem_buff, small_mem2, 60000);
+    memcpy(&tmp_mem_buff, small_mem2, 20000);
 
     char *small_mem3 = realloc(small_mem2, 15345);
     valid = check_metadata_in_use(small_mem3, 1);
