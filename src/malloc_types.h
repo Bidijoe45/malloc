@@ -3,8 +3,6 @@
 
 #include <stddef.h>
 
-#define N_CHUNKS_IN_TINY_ZONE 128;
-
 #define ALIGNMENT 16
 #define ALIGN(size) (((size) + (ALIGNMENT-1)) & ~(ALIGNMENT-1))
 
@@ -24,7 +22,7 @@ typedef struct chunk_header {
     size_t size;
     struct chunk_header *prev_chunk;
     struct chunk_header *next_chunk;
-} chunk_header; 
+} chunk_header;
 
 typedef struct memory_zone {
     struct memory_zone *next_zone;
@@ -41,5 +39,8 @@ typedef struct malloc_data {
     memory_zone *zones_list[N_ZONES];
     malloc_sizes sizes[N_ZONES];
 } malloc_data;
+
+#define SIZE_T_SIZE ALIGN( sizeof(size_t) )
+#define MEMORY_ZONE_SIZE ALIGN( sizeof(memory_zone) )
 
 #endif

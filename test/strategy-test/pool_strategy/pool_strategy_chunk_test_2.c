@@ -14,7 +14,8 @@
 int main() {
     char *test_name = "test pool strategy chunk 2";
 
-    int payload_size = 120;
+    initialize_malloc();
+    int payload_size = g_malloc_data.sizes[TINY_ZONE].payload;
     char *mem = malloc(1);
     chunk_header *chunk = get_chunk_header(mem);
     memory_zone *zone_header = (memory_zone *)((char*)chunk - sizeof(memory_zone));
@@ -31,7 +32,7 @@ int main() {
         return 1;
     }
 
-    int n_chunks = (g_malloc_data.sizes[TINY_ZONE].zone - sizeof(memory_zone)) / g_malloc_data.sizes[TINY_ZONE].chunk;
+    int n_chunks = (g_malloc_data.sizes[TINY_ZONE].zone - MEMORY_ZONE_SIZE) / g_malloc_data.sizes[TINY_ZONE].chunk;
 
     char *pointers[n_chunks];
     for (int i=0; i < n_chunks; i++) {

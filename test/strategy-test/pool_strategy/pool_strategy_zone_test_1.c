@@ -17,7 +17,7 @@ int main() {
     chunk_header *chunk = get_chunk_header(mem);
     size_metadata meta = malloc_read_size_metadata(chunk);
 
-    if (meta.size != 128) {
+    if (meta.size != g_malloc_data.sizes[TINY_ZONE].chunk) {
         print_test(test_name, TEST_FAIL, "Metadata: incorrect size");
         return 1;
     }
@@ -27,7 +27,7 @@ int main() {
         return 1;
     }
 
-    memory_zone *zone_header = (memory_zone *)((char*)chunk - sizeof(memory_zone));
+    memory_zone *zone_header = (memory_zone *)((char*)chunk - SIZE_T_SIZE);
     if (zone_header->next_zone != NULL) {
         print_test(test_name, TEST_FAIL, "zone->next is not null");
         return 1;
@@ -39,14 +39,14 @@ int main() {
         return 1;
     }
 
-    memory_zone *new_zone_1 = zone_mgr_create_by_type(TINY_ZONE);
+    memory_zone *new_zone_1 = zone_mgr_create(TINY_ZONE, g_malloc_data.sizes[TINY_ZONE].zone);
     
     if (new_zone_1->next_zone != zone_header) {
         print_test(test_name, TEST_FAIL, "new created zone is not pointing to old zone");
         return 1;
     }
 
-    memory_zone *new_zone_2 = zone_mgr_create_by_type(TINY_ZONE);
+    memory_zone *new_zone_2 = zone_mgr_create(TINY_ZONE, g_malloc_data.sizes[TINY_ZONE].zone);
     
     if (new_zone_2->next_zone != new_zone_1 && new_zone_1->next_zone != zone_header) {
         print_test(test_name, TEST_FAIL, "new created zone is not pointing to old zone 2");

@@ -36,7 +36,7 @@ void print_test(char *test_name, int result, char *reason) {
 
 chunk_header *get_chunk_header(void *address) {
     uint8_t *start_addr = (uint8_t *)address;
-    chunk_header *chunk = (chunk_header *)(start_addr - sizeof(size_t)); //This is because the payload stars after size in chunk_header
+    chunk_header *chunk = (chunk_header *)(start_addr - SIZE_T_SIZE);
 
     return chunk;
 }
@@ -44,6 +44,8 @@ chunk_header *get_chunk_header(void *address) {
 bool check_return_address_size(void *address, size_t expected_size) {
     chunk_header *chunk = get_chunk_header(address);
     size_metadata metadata = malloc_read_size_metadata(chunk);
+
+    printf("metadata.size: %zu\n", metadata.size);
 
     if (metadata.size != expected_size)
         return false;
@@ -75,22 +77,14 @@ void write_dummy_data(char *address, size_t size) {
 }
 
 size_t calculate_large_expected_size(size_t size) {
-    return ALIGN(size + sizeof(memory_zone) + sizeof(size_t) * 2);
+    return ALIGN(size) + SIZE_T_SIZE;
 }
 
 int fls_check_exected_size(chunk_header *chunk, size_t size) {
-    size_t expected_size = ALIGN(size + sizeof(size_t) * 2);
+    size_t expected_size = ALIGN(size) + SIZE_T_SIZE * 2;
 
     if (expected_size == size)
         return 1;
-
-    if (size > expected_size
-        && size < (expected_size + g_malloc_data.sizes[TINY_ZONE].chunk))
-    {
-        //printf("chunk: %p -> size is bigger than expected size, \
-        //     but should be in boundaries\n", chunk);
-        return 1;
-    }
 
     return 0;
 }
@@ -107,4 +101,19 @@ int fls_is_chunk_free(chunk_header *chunk) {
     }
 
     return 0;
+}
+
+void initialize_test_sizes_array(size_t *sizes, size_t n_sizes, size_t min_size, size_t max_size) {
+    size_t increment = (max_size - min_size) / n_sizes;
+    size_t val = min_size;
+
+    sizes[0] = min_size + 1;
+    for (size_t i=1; i < n_sizes; i++) {
+        sizes[i] = val;
+        val += increment;
+    }
+}
+
+void initialize_pool_test_sizes_array(size_t *sizes, size_t n_sizes) {
+    initialize_test_sizes_array(sizes, n_sizes, 1, g_malloc_data.sizes[TINY_ZONE].payload);
 }

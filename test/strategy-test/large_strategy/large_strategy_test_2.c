@@ -8,8 +8,10 @@
 #include "malloc_types.h"
 
 int main() {
-    size_t sizes_to_test[8] = {70764, 84716, 112374, 89378, 73641, 93736, 123649, 83476};
     size_t n_sizes = 8;
+    size_t sizes_to_test[n_sizes];
+    initialize_malloc();
+    initialize_test_sizes_array(sizes_to_test, n_sizes, g_malloc_data.sizes[SMALL_ZONE].chunk + 1000, 1000000);
 
     char *test_name = "large starategy test 2";
     

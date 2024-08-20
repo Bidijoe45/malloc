@@ -10,13 +10,14 @@ test_type=""
 
 if [ "$OSTYPE" == "linux-gnu" ]; then
     debugger="gdb --args"
-elif [ "$OSTYPE" == "darwin" ]; then
+elif [[ "$OSTYPE" =~ "darwin" ]]; then
     debugger="lldb --"
 fi
+
+echo 
 
 if [ "$1" == "s" ]; then
     $debugger "$(dirname "$0")/build/test/strategy-test/${2}"
 elif [ "$1" == "r" ]; then
-    echo "$(dirname $0)/build/test/rand-test/rand_test $(dirname $0)/build/test/rand-test/${2}_commands"
     $debugger "$(dirname $0)/build/test/rand-test/rand_test" "$(dirname $0)/build/test/rand-test/${2}_commands"
 fi

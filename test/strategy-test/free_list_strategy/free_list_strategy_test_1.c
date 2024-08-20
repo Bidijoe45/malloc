@@ -11,7 +11,7 @@
 
 int main() {
     char *test_name = "free list strategy test 1";
-    size_t allocation_size = 255;
+    size_t allocation_size = 2000;
     char *mem = malloc(allocation_size);
 
     chunk_header *chunk = get_chunk_header(mem);

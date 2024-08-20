@@ -12,7 +12,7 @@
 int main() {
     char *test_name = "free list strategy test 2";
 
-    size_t allocation_size = 255;
+    size_t allocation_size = 5000;
     size_t n_allocations = 255;
     void *pointers[n_allocations];
 

@@ -10,7 +10,7 @@
 int main() {
     char *test_name = "large starategy test 3";
     
-    size_t size = 1000000;
+    size_t size = 3000000;
     char *ptr = malloc(size);
 
     ptr[0] = 'X';

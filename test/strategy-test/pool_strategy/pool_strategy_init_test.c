@@ -12,7 +12,7 @@
 #include "zone_manager.h"
 
 int main() {
-       char *test_name = "test pool strategy initizalization";
+    char *test_name = "test pool strategy initizalization";
 
     char *mem = malloc(1);
     chunk_header *chunk = get_chunk_header(mem);

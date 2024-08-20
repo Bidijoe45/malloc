@@ -21,19 +21,16 @@ void *malloc(size_t size) {
         initialized = true;
     }
 
-    if (size <= g_malloc_data.sizes[TINY_ZONE].payload) {
+    size_t aligned_size = ALIGN(size);
+
+    if (aligned_size <= g_malloc_data.sizes[TINY_ZONE].payload) {
         return pool_strategy_allocate();
     }
-    
-    size = ALIGN(size + sizeof(size_t) * 2);
-    
-    if (size <= g_malloc_data.sizes[SMALL_ZONE].payload) {
-        return fls_allocate(size);
+    if (aligned_size <= g_malloc_data.sizes[SMALL_ZONE].payload) {
+        return fls_allocate(aligned_size);
     }
-    
-    if (size > g_malloc_data.sizes[SMALL_ZONE].payload) {
-        size = ALIGN(size + sizeof(memory_zone));
-        return lgs_allocate(size);
+    else if (aligned_size > g_malloc_data.sizes[SMALL_ZONE].payload) {
+        return lgs_allocate(aligned_size);
     }
 
     return NULL;
@@ -67,6 +64,8 @@ void *realloc(void *ptr, size_t size) {
     chunk_header *chunk = get_chunk_header(ptr);
     size_metadata metadata = malloc_read_size_metadata(chunk);
 
+    size = ALIGN(size);
+
     //From tiny to tiny nothing is needed
     if (size <= g_malloc_data.sizes[TINY_ZONE].payload && metadata.size <= g_malloc_data.sizes[TINY_ZONE].chunk) {
         return ptr;
@@ -77,7 +76,7 @@ void *realloc(void *ptr, size_t size) {
     if (new_mem == NULL)
         return NULL;
 
-    size_t size_to_copy = size < (metadata.size - sizeof(size_t)) ? size : metadata.size - sizeof(size_t);
+    size_t size_to_copy = size < (metadata.size - SIZE_T_SIZE) ? size : metadata.size - SIZE_T_SIZE;
     for (size_t i=0; i < size_to_copy; i++) {
         char byte = ((char *)ptr)[i];
         new_mem[i] = byte;

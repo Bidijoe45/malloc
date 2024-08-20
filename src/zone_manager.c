@@ -27,10 +27,6 @@ memory_zone *zone_mgr_create(zone_type type, size_t zone_size) {
     return new_zone;
 }
 
-memory_zone *zone_mgr_create_by_type(zone_type type) {
-    return zone_mgr_create(type, zone_mgr_get_type_size(type));
-}
-
 void zone_mgr_delete(memory_zone *zone, zone_type type, size_t size) {
     memory_zone *last_zone = NULL;
     memory_zone *current_zone = g_malloc_data.zones_list[type];
@@ -56,23 +52,6 @@ void zone_mgr_delete(memory_zone *zone, zone_type type, size_t size) {
         last_zone->next_zone = current_zone->next_zone;
 
     munmap(zone, size);
-}
-
-void zone_mgr_delete_by_type(memory_zone *zone, zone_type type) {
-    size_t size = zone_mgr_get_type_size(type);
-    zone_mgr_delete(zone, type, size);
-}
-
-size_t count_zones_by_size(zone_type type) {
-    size_t n_zones = 0;
-    memory_zone *current_zone = g_malloc_data.zones_list[type];
-
-    while (current_zone != NULL) {
-        n_zones++;
-        current_zone = current_zone->next_zone;
-    }
-
-    return n_zones;
 }
 
 size_t zone_mgr_get_type_size(zone_type type) {

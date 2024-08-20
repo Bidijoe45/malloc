@@ -21,15 +21,15 @@ void initialize_malloc() {
     lgs_initialize();
 
     //FIXME: Borrar esto al final!
-    //printf("page size: %d\n", getpagesize());
-    //printf("tiny zone size: %zu\n", g_malloc_data.sizes[TINY_ZONE].zone);
-    //printf("tiny zone chunk size: %zu\n", g_malloc_data.sizes[TINY_ZONE].chunk);
-    //printf("tiny zone payload size: %zu\n", g_malloc_data.sizes[TINY_ZONE].payload);
+    printf("page size: %d\n", getpagesize());
+    printf("tiny zone size: %zu\n", g_malloc_data.sizes[TINY_ZONE].zone);
+    printf("tiny zone chunk size: %zu\n", g_malloc_data.sizes[TINY_ZONE].chunk);
+    printf("tiny zone payload size: %zu\n", g_malloc_data.sizes[TINY_ZONE].payload);
 
-    //printf("small zone size: %zu\n", g_malloc_data.sizes[SMALL_ZONE].zone);
-    //printf("small zone chunk size: %zu\n", g_malloc_data.sizes[SMALL_ZONE].chunk);
-    //printf("small zone payload size: %zu\n", g_malloc_data.sizes[SMALL_ZONE].payload);
-    //printf("\n");
+    printf("small zone size: %zu\n", g_malloc_data.sizes[SMALL_ZONE].zone);
+    printf("small zone chunk size: %zu\n", g_malloc_data.sizes[SMALL_ZONE].chunk);
+    printf("small zone payload size: %zu\n", g_malloc_data.sizes[SMALL_ZONE].payload);
+    printf("\n");
 }
 
 size_t malloc_size_metadata_to_size_t(size_metadata metadata) {
@@ -53,9 +53,6 @@ void malloc_write_size_metadata(chunk_header *chunk, size_metadata metadata) {
     chunk->size = malloc_size_metadata_to_size_t(metadata);
 }
 
-size_t *malloc_get_end_size(chunk_header *chunk, size_t size) {
-    return (size_t *)(((char *)chunk) + size - sizeof(size_t));
-}
 
 void malloc_initialize_chunk(chunk_header *chunk) {
     chunk->prev_chunk = NULL;
@@ -77,7 +74,7 @@ chunk_header *malloc_get_last_chunk(chunk_header *chunk) {
 }
 
 chunk_header *get_chunk_header(void *ptr) {
-    return (chunk_header *)(ptr - sizeof(size_t));
+    return (chunk_header *)(ptr - SIZE_T_SIZE);
 }
 
 
@@ -139,15 +136,15 @@ void visualize_memory(void)
     {
 
         malloc_print_address_hex(tiny_zone);
-        malloc_print(" small zone header (");
-        malloc_print_size(sizeof(memory_zone));
+        malloc_print(" tiny zone header (");
+        malloc_print_size(MEMORY_ZONE_SIZE);
         malloc_print(" bytes): ");
         malloc_print_address_hex(tiny_zone->next_zone);
         malloc_print("\n");
 
-        size_t *chunk_ptr = (size_t *)((uint8_t *)tiny_zone + sizeof(memory_zone));
+        size_t *chunk_ptr = (size_t *)((uint8_t *)tiny_zone + MEMORY_ZONE_SIZE);
         size_t chunk_size;
-        for (size_t i = 0; i < ((g_malloc_data.sizes[TINY_ZONE].zone - sizeof(memory_zone)) / g_malloc_data.sizes[TINY_ZONE].chunk); i++)
+        for (size_t i = 0; i < ((g_malloc_data.sizes[TINY_ZONE].zone - MEMORY_ZONE_SIZE) / g_malloc_data.sizes[TINY_ZONE].chunk); i++)
         {
             chunk_header *chunk = (chunk_header *)chunk_ptr;
             size_metadata chunk_metadata = malloc_read_size_metadata((chunk_header *)chunk_ptr);
@@ -156,20 +153,20 @@ void visualize_memory(void)
             if (chunk_metadata.in_use)
             {
                 malloc_print_address_hex(chunk_ptr);
-                malloc_print(" chunk_header (");
-                malloc_print_size(sizeof(size_t));
+                malloc_print(" tny chunk_header (");
+                malloc_print_size(SIZE_T_SIZE);
                 malloc_print(" bytes): ");
                 malloc_print_size(chunk_size);
                 malloc_print(" ");
                 malloc_print_size(chunk_metadata.in_use);
                 malloc_print(" in use body (");
-                malloc_print_size(chunk_size - sizeof(size_t));
+                malloc_print_size(chunk_size - SIZE_T_SIZE);
                 malloc_print(" bytes)\n");
             }
             else
             {
                 malloc_print_address_hex(chunk_ptr);
-                malloc_print(" chunk_header (");
+                malloc_print(" tny chunk_header (");
                 malloc_print_size(sizeof(chunk_header));
                 malloc_print(" bytes): ");
                 malloc_print_size(chunk_size);
@@ -181,7 +178,7 @@ void visualize_memory(void)
                 malloc_print_address_hex(chunk->next_chunk);
                 malloc_print(" ");
                 malloc_print(" free bytes (");
-                malloc_print_size(chunk_size - sizeof(size_t));
+                malloc_print_size(chunk_size - SIZE_T_SIZE);
                 malloc_print(" bytes)");
                 malloc_print("\n");
             }
@@ -195,25 +192,25 @@ void visualize_memory(void)
     {
         malloc_print_address_hex(small_zone);
         malloc_print(" small zone header (");
-        malloc_print_size(sizeof(memory_zone));
+        malloc_print_size(MEMORY_ZONE_SIZE);
         malloc_print(" bytes): ");
         malloc_print_address_hex(small_zone->next_zone);
         malloc_print("\n");
 
-        size_t *chunk_ptr = (size_t *)((uint8_t *)small_zone + sizeof(memory_zone));
+        size_t *chunk_ptr = (size_t *)((uint8_t *)small_zone + MEMORY_ZONE_SIZE);
         size_t chunk_size;
-        for (size_t i = 0; i < (g_malloc_data.sizes[SMALL_ZONE].zone - sizeof(memory_zone)); i += chunk_size)
+        for (size_t i = 0; i < (g_malloc_data.sizes[SMALL_ZONE].zone - MEMORY_ZONE_SIZE); i += chunk_size)
         {
             size_metadata chunk_metadata = malloc_read_size_metadata((chunk_header *)chunk_ptr);
             chunk_size = chunk_metadata.size;
             uint8_t in_use_bit_flag = chunk_metadata.in_use;
             if (chunk_metadata.in_use)
             {
-                size_t in_use_bytes = chunk_size - sizeof(size_t);
+                size_t in_use_bytes = chunk_size - SIZE_T_SIZE;
 
                 malloc_print_address_hex(chunk_ptr);
-                malloc_print(" chunk_header (");
-                malloc_print_size(sizeof(size_t));
+                malloc_print(" sm chunk_header (");
+                malloc_print_size(SIZE_T_SIZE);
                 malloc_print(" bytes): ");
                 malloc_print_size(chunk_size);
                 malloc_print(" ");
@@ -226,11 +223,11 @@ void visualize_memory(void)
             else
             {
                 chunk_header *free_chunk_ptr = (chunk_header *)chunk_ptr;
-                size_t *footer_size = (size_t *)((uint8_t *)chunk_ptr + chunk_size - sizeof(size_t));
-                size_t free_bytes = chunk_size - sizeof(chunk_header) - sizeof(size_t);
+                size_t *footer_size = (size_t *)((uint8_t *)chunk_ptr + chunk_size - SIZE_T_SIZE);
+                size_t free_bytes = chunk_size - sizeof(chunk_header) - SIZE_T_SIZE;
                 
                 malloc_print_address_hex(chunk_ptr);
-                malloc_print(" chunk_header (");
+                malloc_print(" sm chunk_header (");
                 malloc_print_size(sizeof(chunk_header));
                 malloc_print(" bytes): ");
                 malloc_print_size(chunk_size);
@@ -245,7 +242,7 @@ void visualize_memory(void)
                 malloc_print_size(free_bytes);
                 malloc_print(" bytes) ");
                 malloc_print(" size (");
-                malloc_print_size(sizeof(size_t));
+                malloc_print_size(SIZE_T_SIZE);
                 malloc_print("): ");
                 malloc_print_size(*footer_size);
                 malloc_print("\n");
@@ -260,22 +257,22 @@ void visualize_memory(void)
     {
         malloc_print_address_hex(large_zone);
         malloc_print(" large zone header (");
-        malloc_print_size(sizeof(memory_zone));
+        malloc_print_size(MEMORY_ZONE_SIZE);
         malloc_print(" bytes): ");
         malloc_print_address_hex(large_zone->next_zone);
         malloc_print("\n");
 
-        size_t *chunk_ptr = (size_t *)((uint8_t *)large_zone + sizeof(memory_zone));
+        size_t *chunk_ptr = (size_t *)((uint8_t *)large_zone + MEMORY_ZONE_SIZE);
         size_metadata chunk_metadata = malloc_read_size_metadata((chunk_header *)chunk_ptr);
         size_t chunk_size = chunk_metadata.size;
         uint8_t in_use_bit_flag = chunk_metadata.in_use;
         if (in_use_bit_flag)
         {
-            size_t in_use_bytes = chunk_size - sizeof(size_t);
+            size_t in_use_bytes = chunk_size - SIZE_T_SIZE;
 
             malloc_print_address_hex(chunk_ptr);
-            malloc_print(" chunk_header (");
-            malloc_print_size(sizeof(size_t));
+            malloc_print(" lg chunk_header (");
+            malloc_print_size(SIZE_T_SIZE);
             malloc_print(" bytes): ");
             malloc_print_size(chunk_size);
             malloc_print(" ");
@@ -289,44 +286,40 @@ void visualize_memory(void)
 
 }
 
-void hexdump(void *mem, unsigned int len)
-{
-    unsigned int i, j, k;
-    
-    for(i = 0; i < len + ((len % 16) ? (16 - len % 16) : 0); i++) {
-        if(i % 16 == 0) {
-            printf("0x%06x: ", i);
-            k = 0;
+void hexdump(void *mem, unsigned int len) {
+    unsigned char *buf = (unsigned char*)mem;
+    unsigned int i, j;
+
+    for (i = 0; i < len; i += 16) {
+        // Print the memory address
+        printf("0x%06x: ", (unsigned int)((unsigned long)buf + i));
+
+        // Print the hex values
+        for (j = 0; j < 16; j++) {
+            if (i + j < len)
+                printf("%02x ", buf[i + j]);
+            else
+                printf("   ");
+
+            if (j == 7)
+                printf(" ");
         }
 
-        if (k == 4 || k == 12)
-            printf(" ");
+        printf(" ");
 
-        if (k == 8)
-            printf("   ");
-        k++;
-
-        if(i < len) {
-            printf("%02x ", 0xFF & ((char*)mem)[i]);
-        }
-        else {
-            printf("   ");
-        }
-        
-        if(i % 16 == (16 - 1)) {
-            for(j = i - (16 - 1); j <= i; j++) {
-                if(j >= len) {
-                    putchar(' ');
-                }
-                else if(isprint(((char*)mem)[j])) {
-                    putchar(0xFF & ((char*)mem)[j]);        
-                }
-                else {
-                    putchar('.');
-                }
+        // Print the ASCII representation
+        for (j = 0; j < 16; j++) {
+            if (i + j < len) {
+                if (isprint(buf[i + j]))
+                    printf("%c", buf[i + j]);
+                else
+                    printf(".");
+            } else {
+                printf(" ");
             }
-            putchar('\n');
         }
+
+        printf("\n");
     }
 }
 

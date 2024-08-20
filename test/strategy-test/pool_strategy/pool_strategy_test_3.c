@@ -12,8 +12,10 @@
 #include "zone_manager.h"
 
 int main() {
-    size_t sizes_to_test[8] = {1, 10, 20, 30, 50, 80, 100, 120};
     size_t n_sizes = 8;
+    size_t sizes_to_test[8];
+    initialize_malloc();
+    initialize_pool_test_sizes_array(sizes_to_test, n_sizes);
 
     char *test_name = "test pool strategy 3";
     

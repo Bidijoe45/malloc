@@ -15,7 +15,8 @@ int main() {
     char *test_name = "test pool strategy 10";
     size_t n_pointers = 10000;
     char *pointers[n_pointers];
-    int size = 120;
+    initialize_malloc();
+    int size = g_malloc_data.sizes[TINY_ZONE].payload;
     bool valid = false;
 
     for (size_t i=0; i < n_pointers; i++) {

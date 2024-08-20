@@ -11,8 +11,10 @@
 
 int main() {
    char *test_name = "free list strategy test 4";
-    size_t sizes[10] = {1475, 2674, 4678, 3617, 2626, 64642, 23642, 35428, 15267, 8364};
     size_t n_allocations = 10;
+    size_t sizes[n_allocations];
+    initialize_malloc();
+    initialize_test_sizes_array(sizes, n_allocations, g_malloc_data.sizes[TINY_ZONE].chunk + 100, g_malloc_data.sizes[SMALL_ZONE].payload);
     char *pointers[n_allocations];
 
     for (int i=0; i < n_allocations; i++) {

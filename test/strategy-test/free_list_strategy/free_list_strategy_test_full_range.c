@@ -11,7 +11,7 @@
 int main() {
     char *test_name = "free list strategy test 6";
 
-    char *m = malloc(1024);
+    char *m = malloc(2048);
     free(m);
 
     size_t min_size = 130;
