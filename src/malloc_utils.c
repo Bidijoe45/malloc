@@ -85,10 +85,7 @@ static void malloc_print_hex_number(size_t n)
 {
     if (n >= 16)
         malloc_print_hex_number(n / 16);
-
-    char a = n % 16;
-    a += a > 9 ? ('a' - 10) : '0';
-    write(1, &a, 1);
+    
     char c = n % 16;
     c += c > 9 ? ('a' - 10) : '0';
     write(1, &c, 1);
@@ -197,7 +194,7 @@ void visualize_memory(void)
         malloc_print_address_hex(small_zone->next_zone);
         malloc_print("\n");
 
-        size_t *chunk_ptr = (size_t *)((uint8_t *)small_zone + MEMORY_ZONE_SIZE);
+        size_t *chunk_ptr = (size_t *)(((uint8_t *)small_zone) + MEMORY_ZONE_SIZE);
         size_t chunk_size;
         for (size_t i = 0; i < (g_malloc_data.sizes[SMALL_ZONE].zone - MEMORY_ZONE_SIZE); i += chunk_size)
         {

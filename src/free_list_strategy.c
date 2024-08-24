@@ -81,9 +81,15 @@ chunk_header *fls_find_best_fit_chunk(size_t size) {
 
     while (current_chunk != NULL) {
         size_metadata current_metadata = malloc_read_size_metadata(current_chunk);
-        size_t size_delta = llabs((ssize_t)current_metadata.size - (ssize_t)size);
+        
+        if (current_metadata.size < size) {
+            current_chunk = current_chunk->next_chunk;
+            continue;
+        }
 
-        if (current_metadata.size >= size && size_delta < best_fit_size_delta) {
+        size_t size_delta = current_metadata.size - size;
+
+        if (size_delta < best_fit_size_delta) {
             best_fit_size_delta = size_delta;
             best_fit_chunk = current_chunk;
         }
@@ -95,7 +101,8 @@ chunk_header *fls_find_best_fit_chunk(size_t size) {
 }
 
 void *fls_allocate(size_t size) {
-    chunk_header *free_chunk = fls_find_best_fit_chunk(size);
+    size_t chunk_size = size + SIZE_T_SIZE * 2;
+    chunk_header *free_chunk = fls_find_best_fit_chunk(chunk_size);
 
     if (free_chunk == NULL) {
         memory_zone *new_zone = zone_mgr_create(SMALL_ZONE, g_malloc_data.sizes[SMALL_ZONE].zone);
@@ -107,8 +114,6 @@ void *fls_allocate(size_t size) {
 
     fls_remove_chunk_from_list(free_chunk);
 
-
-    size_t chunk_size = size + SIZE_T_SIZE * 2;
     size_metadata free_chunk_metadata = malloc_read_size_metadata(free_chunk);
     size_t remaining_size = free_chunk_metadata.size - chunk_size;
 
@@ -127,7 +132,7 @@ void *fls_allocate(size_t size) {
     if (remaining_size != 0) {
         size_metadata remaining_chunk_metadata = {.size= remaining_size, .in_use= 0};
         chunk_header *remaining_chunk = fls_create_chunk(
-            (chunk_header *)( ((uint8_t *)allocated_chunk_end) + SIZE_T_SIZE), 
+            (chunk_header *)( ((uint8_t *)allocated_chunk_end) + SIZE_T_SIZE),
             remaining_chunk_metadata
             );
         fls_add_chunk_to_list(remaining_chunk);
@@ -155,14 +160,14 @@ memory_zone *fls_get_chunk_memory_zone(chunk_header *chunk) {
 
 chunk_header *fls_get_prev_chunk_by_size(chunk_header *chunk) {
     memory_zone *zone_start = fls_get_chunk_memory_zone(chunk);
-    size_t *prev_end_size = (size_t *)( ((char *)chunk) - SIZE_T_SIZE );
+    size_t *prev_end_size = (size_t *)( ((uint8_t *)chunk) - SIZE_T_SIZE );
     size_metadata metadata = malloc_size_t_to_metadata(*prev_end_size);
-    chunk_header *prev_chunk = (chunk_header *)(((char *)chunk) - metadata.size);
+    chunk_header *prev_chunk = (chunk_header *)(((uint8_t *)chunk) - metadata.size);
 
     if (metadata.size == 0)
         return NULL;
 
-    if ((char *)prev_chunk < (((char *)zone_start) + MEMORY_ZONE_SIZE))
+    if ((uint8_t *)prev_chunk < (((uint8_t *)zone_start) + MEMORY_ZONE_SIZE))
         return NULL;
 
     return prev_chunk;
@@ -170,11 +175,11 @@ chunk_header *fls_get_prev_chunk_by_size(chunk_header *chunk) {
 
 chunk_header *fls_get_next_chunk_by_size(chunk_header *chunk) {
     memory_zone *zone_start = fls_get_chunk_memory_zone(chunk);
-    memory_zone *zone_end = (memory_zone *)(((char *)zone_start) + g_malloc_data.sizes[SMALL_ZONE].zone);
+    memory_zone *zone_end = (memory_zone *)(((uint8_t *)zone_start) + g_malloc_data.sizes[SMALL_ZONE].zone);
     size_metadata metadata = malloc_read_size_metadata(chunk);
-    chunk_header *next_chunk = (chunk_header *)(((char *)chunk) + metadata.size);
+    chunk_header *next_chunk = (chunk_header *)(((uint8_t *)chunk) + metadata.size);
 
-    if ((char *)next_chunk >= (char *)zone_end)
+    if ((uint8_t *)next_chunk >= (uint8_t *)zone_end)
         return NULL;
 
     return next_chunk;

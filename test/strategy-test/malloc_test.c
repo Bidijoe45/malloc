@@ -45,8 +45,6 @@ bool check_return_address_size(void *address, size_t expected_size) {
     chunk_header *chunk = get_chunk_header(address);
     size_metadata metadata = malloc_read_size_metadata(chunk);
 
-    printf("metadata.size: %zu\n", metadata.size);
-
     if (metadata.size != expected_size)
         return false;
 
