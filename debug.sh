@@ -14,8 +14,6 @@ elif [[ "$OSTYPE" =~ "darwin" ]]; then
     debugger="lldb --"
 fi
 
-echo 
-
 if [ "$1" == "s" ]; then
     $debugger "$(dirname "$0")/build/test/strategy-test/${2}"
 elif [ "$1" == "r" ]; then

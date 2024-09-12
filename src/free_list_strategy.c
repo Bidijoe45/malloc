@@ -14,11 +14,6 @@ void fls_initialize() {
     g_malloc_data.sizes[SMALL_ZONE].zone = getpagesize() * 800;
     g_malloc_data.sizes[SMALL_ZONE].chunk = g_malloc_data.sizes[SMALL_ZONE].zone / 128;
     g_malloc_data.sizes[SMALL_ZONE].payload = g_malloc_data.sizes[SMALL_ZONE].chunk - SIZE_T_SIZE * 2;
-    //g_malloc_data.zones_list[SMALL_ZONE] = NULL;
-    //g_malloc_data.sizes[SMALL_ZONE].zone = getpagesize();
-    //g_malloc_data.sizes[SMALL_ZONE].chunk = g_malloc_data.sizes[SMALL_ZONE].zone / 128;
-    //g_malloc_data.sizes[SMALL_ZONE].payload = g_malloc_data.sizes[SMALL_ZONE].chunk - SIZE_T_SIZE * 2;
-    //g_malloc_data.chunks_list[SMALL_ZONE] = NULL;
 }
 
 size_t *fls_get_end_size(chunk_header *chunk, size_t size) {
@@ -231,7 +226,7 @@ void fls_merge_free_chunks(chunk_header *chunk) {
     fls_create_chunk(left_most_chunk, new_chunk_metadata);
     fls_add_chunk_to_list(left_most_chunk);
 
-    if (new_chunk_metadata.size == g_malloc_data.sizes[SMALL_ZONE].chunk
+    if (new_chunk_metadata.size == (g_malloc_data.sizes[SMALL_ZONE].zone - MEMORY_ZONE_SIZE)
         && g_malloc_data.chunks_list[SMALL_ZONE]->next_chunk != NULL)
     {
         fls_remove_chunk_from_list(left_most_chunk);

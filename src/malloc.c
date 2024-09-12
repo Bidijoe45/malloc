@@ -48,7 +48,7 @@ void free(void *ptr) {
         pool_strategy_free(chunk);
     }
     else if (chunk_metadata.size > g_malloc_data.sizes[TINY_ZONE].chunk
-            && chunk_metadata.size <= g_malloc_data.sizes[SMALL_ZONE].chunk)
+            && chunk_metadata.size < g_malloc_data.sizes[SMALL_ZONE].chunk)
     {
         fls_free(chunk, chunk_metadata);
     }
@@ -72,14 +72,12 @@ void *realloc(void *ptr, size_t size) {
     }
 
     char *new_mem = malloc(size);
-
     if (new_mem == NULL)
         return NULL;
 
-    size_t size_to_copy = size < (metadata.size - SIZE_T_SIZE) ? size : metadata.size - SIZE_T_SIZE;
+    size_t size_to_copy = size < (metadata.size - SIZE_T_SIZE) ? size : (metadata.size - SIZE_T_SIZE);
     for (size_t i=0; i < size_to_copy; i++) {
-        char byte = ((char *)ptr)[i];
-        new_mem[i] = byte;
+        new_mem[i] = ((char *)ptr)[i];
     }
     free(ptr);
 

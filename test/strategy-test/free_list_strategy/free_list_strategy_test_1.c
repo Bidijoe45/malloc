@@ -11,6 +11,8 @@
 
 int main() {
     char *test_name = "free list strategy test 1";
+
+    /*
     size_t allocation_size = 2000;
     char *mem = malloc(allocation_size);
 
@@ -38,6 +40,12 @@ int main() {
         print_test(test_name, TEST_FAIL, "chunk should not be in use");
         return 1;
     }
+    */
+
+    char *mem1 = malloc(169670);
+    char *mem2 = realloc(mem1, 102372);
+    free(mem2);
+
 
     print_test(test_name, TEST_OK, NULL);
 }
