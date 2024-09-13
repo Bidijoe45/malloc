@@ -239,7 +239,6 @@ void fls_merge_free_chunks(chunk_header *chunk) {
 }
 
 void fls_free(chunk_header *chunk, size_metadata metadata) {
-
     chunk->prev_chunk = NULL;
     chunk->next_chunk = NULL;
     metadata.in_use = 0;
@@ -249,6 +248,40 @@ void fls_free(chunk_header *chunk, size_metadata metadata) {
     fls_merge_free_chunks(chunk);
 }
 
+void fls_print_zone_chunks(memory_zone *zone) {
+    size_t zone_size = g_malloc_data.sizes[SMALL_ZONE].zone;
+    memory_zone *zone_end = (memory_zone *)((uint8_t*)zone + zone_size);
+    chunk_header *chunk = (chunk_header *)((uint8_t*)zone + MEMORY_ZONE_SIZE);
+    while ((uint8_t *)chunk < (uint8_t *)zone_end) {
+        size_metadata chunk_metadata = malloc_read_size_metadata(chunk);
+
+        // start address
+        malloc_print_address_hex(chunk);
+        // -
+        malloc_print(" - ");
+        // end address
+        chunk_header *chunk_end = (chunk_header *)((uint8_t*)chunk + chunk_metadata.size - 1);
+        malloc_print_address_hex(chunk_end);
+        // :
+        malloc_print(" : ");
+        // size
+        malloc_print_size(chunk_metadata.size);
+        // bytes
+        malloc_print(" bytes\n");
+
+        chunk = (chunk_header *)((uint8_t*)chunk + chunk_metadata.size);
+    }
+}
+
 void fls_print_zones(memory_zone *zone) {
-    
+    if (g_malloc_data.zones_list[SMALL_ZONE] == NULL)
+        return;
+
+    malloc_print("SMALL : ");
+    malloc_print_address_hex(zone);
+    malloc_print("\n");
+
+    for (; zone != NULL; zone = zone->next_zone) {
+        fls_print_zone_chunks(zone);
+    }
 }

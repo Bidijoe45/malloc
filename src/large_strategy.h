@@ -6,5 +6,6 @@
 void *lgs_allocate(size_t size);
 void lgs_free(chunk_header *chunk, size_metadata metadata);
 void lgs_initialize();
+void lgs_print_zones(memory_zone *zone);
 
 #endif

@@ -21,7 +21,7 @@ configure_file(${CMAKE_SOURCE_DIR}/test/rand-test/run-test.sh ${CMAKE_BINARY_DIR
 #test args: test_name n_allocations n_reallocations lower_bound upper_bound initial_offset
 
 set(tiny_lower_bound 1)
-set(tiny_upper_bound 110)
+set(tiny_upper_bound 16)
 
 #pool rand strategy tests
 create_test("rand_ps_test_1" 100 0 ${tiny_lower_bound} ${tiny_upper_bound} 30)
@@ -32,8 +32,8 @@ create_test("rand_ps_test_5" 1600 0 ${tiny_lower_bound} ${tiny_upper_bound} 300)
 create_test("rand_ps_test_6" 1600 300 ${tiny_lower_bound} ${tiny_upper_bound} 300)
 create_test("rand_ps_test_8" 2000 800 ${tiny_lower_bound} ${tiny_upper_bound} 400)
 
-set(small_lower_bound 130)
-set(small_upper_bound 102300)
+set(small_lower_bound 20)
+set(small_upper_bound 25568)
 
 #free rand list strategy tests
 create_test("rand_fls_test_1" 50 0 ${small_lower_bound} ${small_upper_bound} 20)
@@ -45,8 +45,8 @@ create_test("rand_fls_test_6" 600 0 ${small_lower_bound} ${small_upper_bound} 20
 create_test("rand_fls_test_7" 1000 0 ${small_lower_bound} ${small_upper_bound} 400)
 create_test("rand_fls_test_8" 10000 0 ${small_lower_bound} ${small_upper_bound} 1000)
 
-set(large_lower_bound 103000)
-set(large_upper_bound 250000)
+set(large_lower_bound 26000)
+set(large_upper_bound 46000)
 
 #large rand strategy test
 create_test("rand_lgs_test_1" 50 0 ${large_lower_bound} ${large_upper_bound} 20)

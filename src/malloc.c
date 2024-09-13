@@ -9,7 +9,14 @@
 #include "free_list_strategy.h"
 #include "large_strategy.h"
 
-malloc_data g_malloc_data;
+malloc_data g_malloc_data = {
+    .zones_list[0] = NULL,
+    .zones_list[1] = NULL,
+    .zones_list[2] = NULL,
+    .chunks_list[0] = NULL,
+    .chunks_list[1] = NULL,
+    .chunks_list[2] = NULL
+};
 
 void *malloc(size_t size) {
     if (size == 0)
@@ -67,7 +74,8 @@ void *realloc(void *ptr, size_t size) {
     size = ALIGN(size);
 
     //From tiny to tiny nothing is needed
-    if (size <= g_malloc_data.sizes[TINY_ZONE].payload && metadata.size <= g_malloc_data.sizes[TINY_ZONE].chunk) {
+    if (size <= g_malloc_data.sizes[TINY_ZONE].payload
+        && metadata.size <= g_malloc_data.sizes[TINY_ZONE].chunk) {
         return ptr;
     }
 
@@ -85,9 +93,9 @@ void *realloc(void *ptr, size_t size) {
 }
 
 void show_alloc_mem() {
-    //printf("=== ALLOCATED MEMORY ===\n");
-    //printf("show alloc mem\n");
+    write(1, "=== ALLOCATED MEMORY ===\n", strlen("=== ALLOCATED MEMORY ===\n"));
     pool_strategy_print_zone(g_malloc_data.zones_list[TINY_ZONE]);
-
-    //printf("=== ================ ===\n");
+    fls_print_zones(g_malloc_data.zones_list[SMALL_ZONE]);
+    lgs_print_zones(g_malloc_data.zones_list[LARGE_ZONE]);
+    write(1, "=== ================ ===\n", strlen("=== ================ ===\n"));
 }

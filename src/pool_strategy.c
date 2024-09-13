@@ -82,11 +82,7 @@ void pool_strategy_free(chunk_header *chunk) {
     malloc_write_size_metadata(chunk, metadata);
 }
 
-void pool_strategy_print_zone(memory_zone *zone) {
-    malloc_print("TINY : ");
-    malloc_print_address_hex(zone);
-    malloc_print("\n");
-
+void pool_strategy_print_zone_chunks(memory_zone *zone) {
     size_t n_chunks = (g_malloc_data.sizes[TINY_ZONE].zone - MEMORY_ZONE_SIZE) / g_malloc_data.sizes[TINY_ZONE].chunk;
     chunk_header *chunk = (chunk_header *)((uint8_t*)zone + MEMORY_ZONE_SIZE);
     for (int i=0; i < n_chunks; i++) {
@@ -107,5 +103,18 @@ void pool_strategy_print_zone(memory_zone *zone) {
         malloc_print(" bytes\n");
 
         chunk = (chunk_header *)((uint8_t*)chunk + chunk_metadata.size);
+    }
+}
+
+void pool_strategy_print_zone(memory_zone *zone) {
+    if (g_malloc_data.zones_list[TINY_ZONE] == NULL)
+        return;
+
+    malloc_print("TINY : ");
+    malloc_print_address_hex(zone);
+    malloc_print("\n");
+
+    for (; zone != NULL; zone = zone->next_zone) {
+        pool_strategy_print_zone_chunks(zone);
     }
 }

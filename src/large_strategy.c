@@ -28,6 +28,34 @@ void *lgs_allocate(size_t size) {
 
 void lgs_free(chunk_header *chunk, size_metadata metadata) {
     memory_zone *zone = (memory_zone *)(((uint8_t *)chunk) - MEMORY_ZONE_SIZE);
-
     zone_mgr_delete(zone, LARGE_ZONE, metadata.size + MEMORY_ZONE_SIZE);
+}
+
+void lgs_print_zones(memory_zone *zone) {
+    if (g_malloc_data.zones_list[LARGE_ZONE] == NULL)
+        return;
+
+    malloc_print("LARGE : ");
+    malloc_print_address_hex(zone);
+    malloc_print("\n");
+
+    for (; zone != NULL; zone = zone->next_zone) {
+        chunk_header *chunk = (chunk_header *)((uint8_t*)zone + MEMORY_ZONE_SIZE);
+        size_metadata chunk_metadata = malloc_read_size_metadata(chunk);
+
+        // start address
+        malloc_print_address_hex(chunk);
+        // -
+        malloc_print(" - ");
+        // end address
+        chunk_header *chunk_end = (chunk_header *)((uint8_t*)chunk + chunk_metadata.size - 1);
+        malloc_print_address_hex(chunk_end);
+        // :
+        malloc_print(" : ");
+        // size
+        malloc_print_size(chunk_metadata.size);
+        // bytes
+        malloc_print(" bytes\n");
+    }
+
 }

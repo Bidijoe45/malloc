@@ -62,7 +62,7 @@ int check_out_of_zone(char *ptr, int allocation_size) {
         }
 
         if (zone_i > max_zones_iterations) {
-            fprintf(stderr, "ERROR: MAX ZONE ITERATIONS\n");
+            write(1, "ERROR: MAX ZONE ITERATIONS\n", strlen("ERROR: MAX ZONE ITERATIONS\n"));
             exit(1);
         }
         zone_i++;
@@ -74,11 +74,11 @@ int check_out_of_zone(char *ptr, int allocation_size) {
     while (current_zone != NULL) {
         int zone_size = (zone_type < 2) ? g_malloc_data.sizes[zone_type].zone : get_zone_type_expected_size(allocation_size);
         memory_zone *zone_end = (memory_zone *)(((char *)current_zone) + zone_size);
-        fprintf(stderr, "zone: %p -> %p\n", current_zone, zone_end);
+        //fprintf(stderr, "zone: %p -> %p\n", current_zone, zone_end);
         current_zone = current_zone->next_zone;
     }
 
-    fprintf(stderr, "invalid ptr: %p \n", ptr);
+    //fprintf(stderr, "invalid ptr: %p \n", ptr);
 
     return true;
 }
@@ -102,14 +102,15 @@ int chunk_header_is_valid(char *ptr, int allocation_size) {
     int invalid_zone = check_out_of_zone(ptr, allocation_size);
     
     if (invalid_zone) {
-        printf("chunk header: invalid zone\n");
+        //printf("chunk header: invalid zone\n");
+        write(1, "chunk header: invalid zone\n", strlen("chunk header: invalid zone\n"));
         return false;
     }
 
     int expected_size = get_zone_type_expected_size(allocation_size);
     int valid_address = check_return_address_size(ptr, expected_size);
     if (!valid_address) {
-        printf("chunk header: invalid address size\n");
+        //printf("chunk header: invalid address size\n");
         return false;
     }
 
@@ -172,11 +173,12 @@ int main(int argc, char **argv) {
         if (c == 'M') {
             allocations[id] = malloc(size);
             allocations_sizes[id] = size;
-            fprintf(stderr, "%c: %d\n", c, id);
+            //fprintf(stderr, "%c: %d\n", c, id);
 
             int vaid_header = chunk_header_is_valid(allocations[id], allocations_sizes[id]);
             if (!vaid_header) {
-                fprintf(stderr, "ERROR: INVALID CHUNK HEADER: %c %d\n", c, id);
+                //fprintf(stderr, "ERROR: INVALID CHUNK HEADER: %c %d\n", c, id);
+                write(1, "ERROR: INVALID CHUNK HEADER\n", strlen("ERROR: INVALID CHUNK HEADER\n"));
                 exit(1);
             }
 
@@ -210,16 +212,18 @@ int main(int argc, char **argv) {
         else if (c == 'R') {
             allocations[id] = realloc(allocations[id], size);
             allocations_sizes[id] = size;
-            fprintf(stderr, "%c: %d\n", c, id);
+            //fprintf(stderr, "%c: %d\n", c, id);
 
             int vaid_header = chunk_header_is_valid(allocations[id], allocations_sizes[id]);
             if (!vaid_header) {
-                fprintf(stderr, "ERROR: INVALID CHUNK HEADER: %c %d\n", c, id);
+                //fprintf(stderr, "ERROR: INVALID CHUNK HEADER: %c %d\n", c, id);
+                write(1, "ERROR: INVALID CHUNK HEADER:\n", strlen("ERROR: INVALID CHUNK HEADER:\n"));
                 exit(1);
             }
             
             if (allocations[id] == NULL) {
-                fprintf(stderr, "Realloc returned NULL\n");
+                //fprintf(stderr, "Realloc returned NULL\n");
+                write(1, "Realloc returned NULL\n", strlen("Realloc returned NULL\n"));
                 continue;
             }
 
@@ -248,7 +252,7 @@ int main(int argc, char **argv) {
         else if (c == 'F') {
             free(allocations[id]);
             allocations[id] = NULL;
-            fprintf(stderr, "%c: %d\n", c, id);
+            //fprintf(stderr, "%c: %d\n", c, id);
         }
 
         //Check all chunks
