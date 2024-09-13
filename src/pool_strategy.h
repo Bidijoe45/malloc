@@ -10,5 +10,6 @@ void *pool_strategy_allocate();
 void pool_strategy_free(chunk_header *chunk);
 void pool_strategy_initialize();
 void pool_strategy_initialize_zone(memory_zone *zone);
+void pool_strategy_print_zone(memory_zone *zone);
 
 #endif

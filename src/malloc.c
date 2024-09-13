@@ -86,7 +86,8 @@ void *realloc(void *ptr, size_t size) {
 
 void show_alloc_mem() {
     //printf("=== ALLOCATED MEMORY ===\n");
-
+    //printf("show alloc mem\n");
+    pool_strategy_print_zone(g_malloc_data.zones_list[TINY_ZONE]);
 
     //printf("=== ================ ===\n");
 }

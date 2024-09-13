@@ -28,7 +28,7 @@ int main() {
     for (size_t i=0; i < n_sizes; i++) {
 
         int size = sizes_to_test[i];
-        printf("size to test: %zu\n", size);
+        printf("size to test: %d\n", size);
 
         pointers1[i] = malloc(size);
         valid = check_return_address_size(pointers1[i], g_malloc_data.sizes[TINY_ZONE].chunk);

@@ -5,6 +5,7 @@
 #include "pool_strategy.h"
 #include "malloc_types.h"
 #include "zone_manager.h"
+#include "malloc_utils.h"
 
 void pool_strategy_initialize() {
     g_malloc_data.zones_list[TINY_ZONE] = NULL;
@@ -79,4 +80,32 @@ void pool_strategy_free(chunk_header *chunk) {
     metadata.in_use = 0;
 
     malloc_write_size_metadata(chunk, metadata);
+}
+
+void pool_strategy_print_zone(memory_zone *zone) {
+    malloc_print("TINY : ");
+    malloc_print_address_hex(zone);
+    malloc_print("\n");
+
+    size_t n_chunks = (g_malloc_data.sizes[TINY_ZONE].zone - MEMORY_ZONE_SIZE) / g_malloc_data.sizes[TINY_ZONE].chunk;
+    chunk_header *chunk = (chunk_header *)((uint8_t*)zone + MEMORY_ZONE_SIZE);
+    for (int i=0; i < n_chunks; i++) {
+        size_metadata chunk_metadata = malloc_read_size_metadata(chunk);
+
+        // start address
+        malloc_print_address_hex(chunk);
+        // -
+        malloc_print(" - ");
+        // end address
+        chunk_header *chunk_end = (chunk_header *)((uint8_t*)chunk + chunk_metadata.size - 1);
+        malloc_print_address_hex(chunk_end);
+        // :
+        malloc_print(" : ");
+        // size
+        malloc_print_size(chunk_metadata.size);
+        // bytes
+        malloc_print(" bytes\n");
+
+        chunk = (chunk_header *)((uint8_t*)chunk + chunk_metadata.size);
+    }
 }

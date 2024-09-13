@@ -248,3 +248,7 @@ void fls_free(chunk_header *chunk, size_metadata metadata) {
     fls_add_chunk_to_list(chunk);
     fls_merge_free_chunks(chunk);
 }
+
+void fls_print_zones(memory_zone *zone) {
+    
+}

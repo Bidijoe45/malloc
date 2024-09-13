@@ -53,7 +53,6 @@ void malloc_write_size_metadata(chunk_header *chunk, size_metadata metadata) {
     chunk->size = malloc_size_metadata_to_size_t(metadata);
 }
 
-
 void malloc_initialize_chunk(chunk_header *chunk) {
     chunk->prev_chunk = NULL;
     chunk->next_chunk = NULL;
@@ -77,11 +76,10 @@ chunk_header *get_chunk_header(void *ptr) {
     return (chunk_header *)(ptr - SIZE_T_SIZE);
 }
 
-
 /**
  * Shitty functions bc linux printf uses malloc inside 
  */
-static void malloc_print_hex_number(size_t n)
+void malloc_print_hex_number(size_t n)
 {
     if (n >= 16)
         malloc_print_hex_number(n / 16);
@@ -126,6 +124,41 @@ void malloc_print_size(size_t n)
 	write(1, &c, 1);
 }
 
+/*
+void malloc_print_zone(zone_type zone_type, memory_zone *zone, size_t zone_size) {
+    malloc_print_zone_type(zone_type);
+    malloc_print(" : ");
+    malloc_print_address_hex(zone);
+    malloc_print("\n");
+
+    memory_zone *zone_end = (memory_zone *)((uint8_t*)zone + zone_size);
+    chunk_header *chunk = (chunk_header *)((uint8_t*)zone + MEMORY_ZONE_SIZE);
+
+    size_t n_chunks
+    for (int i=0; i < ) {
+        size_metadata chunk_metadata = malloc_read_size_metadata(chunk);
+
+        // start address
+        malloc_print_address_hex(chunk);
+        // -
+        malloc_print(" - ");
+        // end address
+        chunk_header *chunk_end = (chunk_header *)((uint8_t*)chunk + chunk_metadata.size - 1);
+        malloc_print_address_hex(chunk_end);
+        // :
+        malloc_print(" : ");
+        // size
+        malloc_print_size(chunk_metadata.size);
+        // bytes
+        malloc_print(" bytes\n");
+
+        chunk = (chunk_header *)((uint8_t*)chunk + chunk_metadata.size);
+    }
+
+}
+*/
+
+//TODO: remove
 void visualize_memory(void)
 {
 
@@ -283,6 +316,7 @@ void visualize_memory(void)
 
 }
 
+//TODO: remove this
 void hexdump(void *mem, unsigned int len) {
     unsigned char *buf = (unsigned char*)mem;
     unsigned int i, j;
@@ -320,6 +354,7 @@ void hexdump(void *mem, unsigned int len) {
     }
 }
 
+//TODO: remove this
 void print_chunk_list(chunk_header *chunk) {
     printf("--- Chunk list ---\n");
     while (chunk != NULL) {
@@ -329,6 +364,7 @@ void print_chunk_list(chunk_header *chunk) {
     printf("--- --- --- --- ---\n");
 }
 
+//TODO: remove this
 void print_zone_list(memory_zone *zone) {
     printf("--- zone list ---\n");
     while (zone != NULL) {

@@ -42,9 +42,11 @@ int main() {
     }
     */
 
-    char *mem1 = malloc(169670);
-    char *mem2 = realloc(mem1, 102372);
-    free(mem2);
+    char *mem1 = malloc(20);
+
+    show_alloc_mem();
+
+    //free(mem1);
 
 
     print_test(test_name, TEST_OK, NULL);
