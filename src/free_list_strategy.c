@@ -248,6 +248,12 @@ void fls_free(chunk_header *chunk, size_metadata metadata) {
     fls_merge_free_chunks(chunk);
 }
 
+void *fls_realloc(chunk_header *chunk, size_metadata metadata, size_t new_size) {
+    
+    // Check if new size fits in the same chunk
+
+}
+
 void fls_print_zone_chunks(memory_zone *zone) {
     size_t zone_size = g_malloc_data.sizes[SMALL_ZONE].zone;
     memory_zone *zone_end = (memory_zone *)((uint8_t*)zone + zone_size);

@@ -79,6 +79,13 @@ void *realloc(void *ptr, size_t size) {
         return ptr;
     }
 
+    //From small to small
+    if (size > g_malloc_data.sizes[TINY_ZONE].payload
+        && size <= g_malloc_data.sizes[SMALL_ZONE].payload
+        && metadata.size < g_malloc_data.sizes[SMALL_ZONE].chunk) {
+        return fls_realloc(chunk, metadata);
+    }
+
     char *new_mem = malloc(size);
     if (new_mem == NULL)
         return NULL;
