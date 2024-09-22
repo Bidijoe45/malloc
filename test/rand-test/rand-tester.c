@@ -175,6 +175,11 @@ int main(int argc, char **argv) {
             allocations_sizes[id] = size;
             //fprintf(stderr, "%c: %d\n", c, id);
 
+            if (allocations[id] == NULL) {
+                write(1, "ERROR: malloc returned 0\n", strlen("ERROR: malloc returned 0\n"));
+                //exit(1);
+            }
+
             int vaid_header = chunk_header_is_valid(allocations[id], allocations_sizes[id]);
             if (!vaid_header) {
                 //fprintf(stderr, "ERROR: INVALID CHUNK HEADER: %c %d\n", c, id);
@@ -216,7 +221,7 @@ int main(int argc, char **argv) {
 
             int vaid_header = chunk_header_is_valid(allocations[id], allocations_sizes[id]);
             if (!vaid_header) {
-                //fprintf(stderr, "ERROR: INVALID CHUNK HEADER: %c %d\n", c, id);
+                fprintf(stderr, "ERROR: INVALID CHUNK HEADER: %c %d\n", c, id);
                 write(1, "ERROR: INVALID CHUNK HEADER:\n", strlen("ERROR: INVALID CHUNK HEADER:\n"));
                 exit(1);
             }
@@ -272,4 +277,159 @@ int main(int argc, char **argv) {
     close(file);
 
     return 0;
+}
+
+
+void visualize_memory(void)
+{
+
+    for (memory_zone *tiny_zone = g_malloc_data.zones_list[TINY_ZONE]; tiny_zone != NULL; tiny_zone = tiny_zone->next_zone)
+    {
+        malloc_print_address_hex(tiny_zone);
+        malloc_print(" tiny zone header (");
+        malloc_print_size(MEMORY_ZONE_SIZE);
+        malloc_print(" bytes): ");
+        malloc_print_address_hex(tiny_zone->next_zone);
+        malloc_print("\n");
+
+        size_t *chunk_ptr = (size_t *)((uint8_t *)tiny_zone + MEMORY_ZONE_SIZE);
+        size_t chunk_size;
+        for (size_t i = 0; i < ((g_malloc_data.sizes[TINY_ZONE].zone - MEMORY_ZONE_SIZE) / g_malloc_data.sizes[TINY_ZONE].chunk); i++)
+        {
+            chunk_header *chunk = (chunk_header *)chunk_ptr;
+            size_metadata chunk_metadata = malloc_read_size_metadata((chunk_header *)chunk_ptr);
+            chunk_size = chunk_metadata.size;
+            uint8_t in_use_bit_flag = chunk_metadata.in_use;
+            if (chunk_metadata.in_use)
+            {
+                malloc_print_address_hex(chunk_ptr);
+                malloc_print(" tny chunk_header (");
+                malloc_print_size(SIZE_T_SIZE);
+                malloc_print(" bytes): ");
+                malloc_print_size(chunk_size);
+                malloc_print(" ");
+                malloc_print_size(chunk_metadata.in_use);
+                malloc_print(" in use body (");
+                malloc_print_size(chunk_size - SIZE_T_SIZE);
+                malloc_print(" bytes)\n");
+            }
+            else
+            {
+                malloc_print_address_hex(chunk_ptr);
+                malloc_print(" tny chunk_header (");
+                malloc_print_size(sizeof(chunk_header));
+                malloc_print(" bytes): ");
+                malloc_print_size(chunk_size);
+                malloc_print(" ");
+                malloc_print_size(chunk_metadata.in_use);
+                malloc_print(" ");
+                malloc_print_address_hex(chunk->prev_chunk);
+                malloc_print(" ");
+                malloc_print_address_hex(chunk->next_chunk);
+                malloc_print(" ");
+                malloc_print(" free bytes (");
+                malloc_print_size(chunk_size - SIZE_T_SIZE);
+                malloc_print(" bytes)");
+                malloc_print("\n");
+            }
+            chunk_ptr = (size_t *)((uint8_t *)(chunk_ptr) + chunk_size);
+        }
+    }
+
+    memory_zone *small_zone = g_malloc_data.zones_list[SMALL_ZONE];
+    for (; small_zone != NULL; small_zone = small_zone->next_zone)
+    {
+        malloc_print_address_hex(small_zone);
+        malloc_print(" small zone header (");
+        malloc_print_size(MEMORY_ZONE_SIZE);
+        malloc_print(" bytes): ");
+        malloc_print_address_hex(small_zone->next_zone);
+        malloc_print("\n");
+
+        size_t *chunk_ptr = (size_t *)(((uint8_t *)small_zone) + MEMORY_ZONE_SIZE);
+        size_t chunk_size;
+        for (size_t i = 0; i < (g_malloc_data.sizes[SMALL_ZONE].zone - MEMORY_ZONE_SIZE); i += chunk_size)
+        {
+            size_metadata chunk_metadata = malloc_read_size_metadata((chunk_header *)chunk_ptr);
+            chunk_size = chunk_metadata.size;
+            uint8_t in_use_bit_flag = chunk_metadata.in_use;
+            if (chunk_metadata.in_use)
+            {
+                size_t in_use_bytes = chunk_size - SIZE_T_SIZE;
+
+                malloc_print_address_hex(chunk_ptr);
+                malloc_print(" sm chunk_header (");
+                malloc_print_size(SIZE_T_SIZE);
+                malloc_print(" bytes): ");
+                malloc_print_size(chunk_size);
+                malloc_print(" ");
+                malloc_print_size((size_t)in_use_bit_flag);
+                malloc_print(" in use body (");
+                malloc_print_size(in_use_bytes);
+                malloc_print(")\n");
+
+            }
+            else
+            {
+                chunk_header *free_chunk_ptr = (chunk_header *)chunk_ptr;
+                size_t *footer_size = (size_t *)((uint8_t *)chunk_ptr + chunk_size - SIZE_T_SIZE);
+                size_t free_bytes = chunk_size - sizeof(chunk_header) - SIZE_T_SIZE;
+                
+                malloc_print_address_hex(chunk_ptr);
+                malloc_print(" sm chunk_header (");
+                malloc_print_size(sizeof(chunk_header));
+                malloc_print(" bytes): ");
+                malloc_print_size(chunk_size);
+                malloc_print(" ");
+                malloc_print_size((size_t)in_use_bit_flag);
+                malloc_print(" ");
+                malloc_print_address_hex(free_chunk_ptr->prev_chunk);
+                malloc_print(" ");
+                malloc_print_address_hex(free_chunk_ptr->next_chunk);
+                malloc_print(" ");
+                malloc_print(" free bytes (");
+                malloc_print_size(free_bytes);
+                malloc_print(" bytes) ");
+                malloc_print(" size (");
+                malloc_print_size(SIZE_T_SIZE);
+                malloc_print("): ");
+                malloc_print_size(*footer_size);
+                malloc_print("\n");
+
+            }
+            chunk_ptr = (size_t *)((uint8_t *)(chunk_ptr) + chunk_size);
+        }
+    }  
+
+    for (memory_zone *large_zone = g_malloc_data.zones_list[LARGE_ZONE]; large_zone != NULL; large_zone = large_zone->next_zone)
+    {
+        malloc_print_address_hex(large_zone);
+        malloc_print(" large zone header (");
+        malloc_print_size(MEMORY_ZONE_SIZE);
+        malloc_print(" bytes): ");
+        malloc_print_address_hex(large_zone->next_zone);
+        malloc_print("\n");
+
+        size_t *chunk_ptr = (size_t *)((uint8_t *)large_zone + MEMORY_ZONE_SIZE);
+        size_metadata chunk_metadata = malloc_read_size_metadata((chunk_header *)chunk_ptr);
+        size_t chunk_size = chunk_metadata.size;
+        uint8_t in_use_bit_flag = chunk_metadata.in_use;
+        if (in_use_bit_flag)
+        {
+            size_t in_use_bytes = chunk_size - SIZE_T_SIZE;
+
+            malloc_print_address_hex(chunk_ptr);
+            malloc_print(" lg chunk_header (");
+            malloc_print_size(SIZE_T_SIZE);
+            malloc_print(" bytes): ");
+            malloc_print_size(chunk_size);
+            malloc_print(" ");
+            malloc_print_size((size_t)in_use_bit_flag);
+            malloc_print(" in use body (");
+            malloc_print_size(in_use_bytes);
+            malloc_print(")\n");
+        }
+        
+    }
+
 }

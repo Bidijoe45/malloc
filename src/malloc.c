@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <signal.h>
+#include <unistd.h>
+#include <string.h>
 
 #include "libft_malloc/libft_malloc.h"
 #include "malloc_state.h"
@@ -43,7 +45,6 @@ void *malloc(size_t size) {
     return NULL;
 }
 
-
 void free(void *ptr) {
     if (ptr == NULL)
         return;
@@ -64,33 +65,40 @@ void free(void *ptr) {
     }
 }
 
-void *realloc(void *ptr, size_t size) {
-    if (ptr == NULL || size == 0)
+void *realloc(void *ptr, size_t new_size) {
+    if (ptr == NULL || new_size == 0)
         return ptr;
     
     chunk_header *chunk = get_chunk_header(ptr);
     size_metadata metadata = malloc_read_size_metadata(chunk);
-
-    size = ALIGN(size);
+    size_t aligned_new_size = ALIGN(new_size);
 
     //From tiny to tiny nothing is needed
-    if (size <= g_malloc_data.sizes[TINY_ZONE].payload
+    if (aligned_new_size <= g_malloc_data.sizes[TINY_ZONE].payload
         && metadata.size <= g_malloc_data.sizes[TINY_ZONE].chunk) {
         return ptr;
     }
 
-    //From small to small
-    if (size > g_malloc_data.sizes[TINY_ZONE].payload
-        && size <= g_malloc_data.sizes[SMALL_ZONE].payload
-        && metadata.size < g_malloc_data.sizes[SMALL_ZONE].chunk) {
-        return fls_realloc(chunk, metadata);
-    }
+    uint8_t *new_mem = NULL;
 
-    char *new_mem = malloc(size);
+    //From small to small
+    /*
+    if (aligned_new_size > g_malloc_data.sizes[TINY_ZONE].payload
+        && metadata.size > g_malloc_data.sizes[TINY_ZONE].chunk
+        && aligned_new_size <= g_malloc_data.sizes[SMALL_ZONE].payload
+        && metadata.size < g_malloc_data.sizes[SMALL_ZONE].chunk)
+    {
+        new_mem = fls_realloc(chunk, metadata, aligned_new_size);
+        if (new_mem != NULL)
+            return new_mem;
+    }
+    */
+
+    new_mem = malloc(aligned_new_size);
     if (new_mem == NULL)
         return NULL;
 
-    size_t size_to_copy = size < (metadata.size - SIZE_T_SIZE) ? size : (metadata.size - SIZE_T_SIZE);
+    size_t size_to_copy = new_size < (metadata.size - SIZE_T_SIZE * 2) ? new_size : (metadata.size - SIZE_T_SIZE * 2);
     for (size_t i=0; i < size_to_copy; i++) {
         new_mem[i] = ((char *)ptr)[i];
     }

@@ -6,6 +6,15 @@
 
 #include "malloc_utils.h"
 
+#define tiny_lower_bound 1
+#define tiny_upper_bound 16
+
+#define small_lower_bound 20
+#define small_upper_bound 25568
+
+#define large_lower_bound 26000
+#define large_upper_bound 46000
+
 #define TEST_OK 0
 #define TEST_FAIL 1
 

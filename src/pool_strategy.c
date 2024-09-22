@@ -1,4 +1,3 @@
-#include <unistd.h>
 #include <stdint.h>
 
 #include "malloc_state.h"
@@ -9,10 +8,10 @@
 
 void pool_strategy_initialize() {
     g_malloc_data.zones_list[TINY_ZONE] = NULL;
-    g_malloc_data.sizes[TINY_ZONE].zone = getpagesize();
+    g_malloc_data.chunks_list[TINY_ZONE] = NULL;
+    g_malloc_data.sizes[TINY_ZONE].zone = 4096; //FIXME: getpagesize();
     g_malloc_data.sizes[TINY_ZONE].chunk = g_malloc_data.sizes[TINY_ZONE].zone / 128;
     g_malloc_data.sizes[TINY_ZONE].payload = g_malloc_data.sizes[TINY_ZONE].chunk - SIZE_T_SIZE;
-    g_malloc_data.chunks_list[TINY_ZONE] = NULL;
 }
 
 void pool_strategy_initialize_zone(memory_zone *zone) {
