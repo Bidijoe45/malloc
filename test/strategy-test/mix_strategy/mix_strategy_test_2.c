@@ -11,7 +11,7 @@
 #include "malloc_state.h"
 
 int main() {
-    char *test_name = "mix strategy test 1";
+    char *test_name = "mix strategy test 2";
     int valid = 0;
 
     size_t tmp_buff_size = 60000;

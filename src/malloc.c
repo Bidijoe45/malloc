@@ -79,22 +79,18 @@ void *realloc(void *ptr, size_t new_size) {
         return ptr;
     }
 
-    uint8_t *new_mem = NULL;
-
     //From small to small
-    /*
     if (aligned_new_size > g_malloc_data.sizes[TINY_ZONE].payload
         && metadata.size > g_malloc_data.sizes[TINY_ZONE].chunk
-        && aligned_new_size <= g_malloc_data.sizes[SMALL_ZONE].payload
+        && aligned_new_size < g_malloc_data.sizes[SMALL_ZONE].payload
         && metadata.size < g_malloc_data.sizes[SMALL_ZONE].chunk)
     {
-        new_mem = fls_realloc(chunk, metadata, aligned_new_size);
+        uint8_t *new_mem = fls_realloc(chunk, metadata, aligned_new_size);
         if (new_mem != NULL)
             return new_mem;
     }
-    */
 
-    new_mem = malloc(aligned_new_size);
+    uint8_t *new_mem = malloc(aligned_new_size);
     if (new_mem == NULL)
         return NULL;
 

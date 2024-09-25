@@ -209,7 +209,8 @@ chunk_header *fls_merge_left_free_chunks(chunk_header *chunk) {
     if (left_most_chunk == chunk)
         return NULL;
     
-    fls_remove_chunk_from_list(chunk);
+    if (chunk_metadata.in_use == 0)
+        fls_remove_chunk_from_list(chunk);
     size_metadata new_chunk_metadata = {.size = size_to_merge, .in_use= 0};
     fls_create_chunk(left_most_chunk, new_chunk_metadata);
     fls_add_chunk_to_list(left_most_chunk);
@@ -239,11 +240,17 @@ chunk_header *fls_merge_right_free_chunks(chunk_header *chunk) {
     if (chunk == right_most_chunk)
         return NULL;
     
-    fls_remove_chunk_from_list(chunk);
+    if (chunk_metadata.in_use == 0)
+        fls_remove_chunk_from_list(chunk);
+
     size_metadata new_chunk_metadata = {.size = size_to_merge, .in_use= 0};
-    fls_create_chunk(chunk, new_chunk_metadata);
-    fls_add_chunk_to_list(chunk);
-    return right_most_chunk;
+    size_t *end_size = fls_get_end_size(chunk, new_chunk_metadata.size);
+    malloc_write_size_metadata(chunk, new_chunk_metadata);
+    *end_size = malloc_size_metadata_to_size_t(new_chunk_metadata);
+    
+    if (chunk_metadata.in_use == 0)
+        fls_add_chunk_to_list(chunk);
+    return chunk;
 }
 
 void fls_merge_free_chunks(chunk_header *chunk) {
@@ -281,80 +288,87 @@ void fls_free(chunk_header *chunk, size_metadata metadata) {
 }
 
 chunk_header *fls_realloc_to_bigger_size(chunk_header *chunk, size_metadata metadata, size_t new_size) {
-    chunk_header *next_header = fls_get_next_chunk_by_size(chunk);
-
-    if (next_header == NULL) {
+    chunk_header *next_chunk = fls_get_next_chunk_by_size(chunk);
+    if (next_chunk == NULL) {
         return NULL;
     }
 
-    size_metadata next_metadata = malloc_read_size_metadata(next_header);
-
+    size_metadata next_metadata = malloc_read_size_metadata(next_chunk);
     if (next_metadata.in_use == 1)
         return NULL;
-    
-    size_t combined_chunk_size = metadata.size + next_metadata.size;
-    if (combined_chunk_size > g_malloc_data.sizes[SMALL_ZONE].chunk)
+
+    chunk = fls_merge_right_free_chunks(chunk);
+    metadata = malloc_read_size_metadata(chunk);
+
+    size_t new_chunk_size = new_size;
+    if (new_chunk_size > metadata.size)
         return NULL;
 
-    size_t combined_payload_size = (combined_chunk_size - SIZE_T_SIZE * 2);
-    if (combined_payload_size < new_size)
-        return NULL;
-
-    size_t new_chunk_size = new_size + SIZE_T_SIZE * 2;
-    size_t remaining_size = combined_chunk_size - new_chunk_size;
+    size_t remaining_size = metadata.size - new_chunk_size;
     if (remaining_size <= g_malloc_data.sizes[TINY_ZONE].chunk) {
+        new_chunk_size = metadata.size;
         remaining_size = 0;
-        new_chunk_size = combined_chunk_size;
     }
 
-    size_metadata new_chunk_metadata = {.size = new_chunk_size, .in_use= 1};
-    chunk_header *new_allocated_chunk = fls_create_chunk(chunk, new_chunk_metadata);
-    size_t *new_allocated_chunk_end = fls_get_end_size(new_allocated_chunk, new_chunk_size);
-
-    if (remaining_size > 0) {
-        size_metadata remainig_chunk_meta = {.size = remaining_size, .in_use= 0};
-        chunk_header *remaining_chunk = fls_create_chunk(
-            (chunk_header *)( ((uint8_t *)new_allocated_chunk) + SIZE_T_SIZE),
-            remainig_chunk_meta
+    if (new_chunk_size > g_malloc_data.sizes[SMALL_ZONE].chunk)
+       return NULL;
+    
+    size_metadata allocated_chunk_metadata = {.size= new_chunk_size, .in_use= 1};
+    malloc_write_size_metadata(chunk, allocated_chunk_metadata);
+    size_t *allocated_chunk_end = fls_get_end_size( 
+        chunk,
+        allocated_chunk_metadata.size
         );
+    *allocated_chunk_end = malloc_size_metadata_to_size_t(allocated_chunk_metadata);
+
+    if (remaining_size != 0) {
+        size_metadata remaining_chunk_metadata = {.size= remaining_size, .in_use= 0};
+        chunk_header *remaining_chunk = fls_create_chunk(
+            (chunk_header *)( ((uint8_t *)allocated_chunk_end) + SIZE_T_SIZE),
+            remaining_chunk_metadata
+            );
         fls_add_chunk_to_list(remaining_chunk);
     }
 
-    return new_allocated_chunk;
+    return chunk;
 }
 
 chunk_header *fls_realloc_to_smaller_size(chunk_header *chunk, size_metadata metadata, size_t new_size) {
-    size_t new_chunk_size = new_size + SIZE_T_SIZE * 2;
-    size_t remaining_size = metadata.size - new_chunk_size;
+    //size_t new_chunk_size = new_size + SIZE_T_SIZE * 2;
+    size_t remaining_size = metadata.size - new_size;
 
     if (remaining_size <= g_malloc_data.sizes[TINY_ZONE].chunk) {
         return NULL;
     }
 
-    size_metadata new_chunk_metadata = {.size = new_chunk_size, .in_use= 1};
-    chunk_header *new_allocated_chunk = fls_create_chunk(chunk, new_chunk_metadata);
-    size_t *new_allocated_chunk_end = fls_get_end_size(new_allocated_chunk, new_chunk_size);
+    size_metadata new_chunk_metadata = {.size = new_size, .in_use= 1};
+    malloc_write_size_metadata(chunk, new_chunk_metadata);
+    size_t *new_allocated_chunk_end = fls_get_end_size(chunk, new_size);
+    *new_allocated_chunk_end = malloc_size_metadata_to_size_t(new_chunk_metadata);
     
     if (remaining_size > 0) {
         size_metadata remainig_chunk_meta = {.size = remaining_size, .in_use= 0};
         chunk_header *remaining_chunk = fls_create_chunk(
-            (chunk_header *)( ((uint8_t *)new_allocated_chunk) + SIZE_T_SIZE),
+            (chunk_header *)( ((uint8_t *)new_allocated_chunk_end) + SIZE_T_SIZE),
             remainig_chunk_meta
         );
         fls_add_chunk_to_list(remaining_chunk);
+        //fls_merge_right_free_chunks(remaining_chunk);
     }
 
-    return new_allocated_chunk;
+    return chunk;
 }
 
 void *fls_realloc(chunk_header *chunk, size_metadata metadata, size_t new_size) {
     chunk_header *new_chunk = NULL;
+    size_t new_chunk_size = new_size + SIZE_T_SIZE * 2;
 
-    if (metadata.size < new_size) {
-        new_chunk = fls_realloc_to_bigger_size(chunk, metadata, new_size);
+    if (metadata.size <= new_chunk_size) {
+        new_chunk = fls_realloc_to_bigger_size(chunk, metadata, new_chunk_size);
     }
     else {
-        new_chunk = fls_realloc_to_smaller_size(chunk, metadata, new_size);
+        //return NULL;
+        new_chunk = fls_realloc_to_smaller_size(chunk, metadata, new_chunk_size);
     }
 
     return new_chunk == NULL ? NULL : ((uint8_t *)new_chunk) + SIZE_T_SIZE;
