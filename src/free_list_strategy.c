@@ -121,7 +121,7 @@ void *fls_allocate(size_t size) {
     //FIXME: What happens if this condition ocurrs?
     if (chunk_size > g_malloc_data.sizes[SMALL_ZONE].chunk)
     {
-        write(1, "WTF bro\n", strlen("WTF bro\n"));
+        write(1, "This should not happened :)\n", strlen("This should not happened :)\n"));
         exit(1);
     }
     
@@ -334,7 +334,6 @@ chunk_header *fls_realloc_to_bigger_size(chunk_header *chunk, size_metadata meta
 }
 
 chunk_header *fls_realloc_to_smaller_size(chunk_header *chunk, size_metadata metadata, size_t new_size) {
-    //size_t new_chunk_size = new_size + SIZE_T_SIZE * 2;
     size_t remaining_size = metadata.size - new_size;
 
     if (remaining_size <= g_malloc_data.sizes[TINY_ZONE].chunk) {
@@ -353,7 +352,7 @@ chunk_header *fls_realloc_to_smaller_size(chunk_header *chunk, size_metadata met
             remainig_chunk_meta
         );
         fls_add_chunk_to_list(remaining_chunk);
-        //fls_merge_right_free_chunks(remaining_chunk);
+        fls_merge_right_free_chunks(remaining_chunk);
     }
 
     return chunk;
@@ -367,7 +366,6 @@ void *fls_realloc(chunk_header *chunk, size_metadata metadata, size_t new_size) 
         new_chunk = fls_realloc_to_bigger_size(chunk, metadata, new_chunk_size);
     }
     else {
-        //return NULL;
         new_chunk = fls_realloc_to_smaller_size(chunk, metadata, new_chunk_size);
     }
 

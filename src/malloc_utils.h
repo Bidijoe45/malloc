@@ -13,11 +13,6 @@ void malloc_initialize_chunk(chunk_header *chunk);
 chunk_header *malloc_get_last_chunk(chunk_header *chunk);
 chunk_header *get_chunk_header(void *ptr);
 
-void hexdump(void *mem, unsigned int len);
-void visualize_memory(void);
-void print_chunk_list(chunk_header *chunk);
-void print_zone_list(memory_zone *zone);
-
 void malloc_print(char *str);
 void malloc_print_size(size_t n);
 void malloc_print_address_hex(void *ptr);

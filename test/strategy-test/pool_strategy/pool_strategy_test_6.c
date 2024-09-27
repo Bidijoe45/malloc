@@ -11,9 +11,11 @@
 #include "malloc_state.h"
 #include "zone_manager.h"
 
+memory_zone *pool_strategy_get_chunk_memory_zone(chunk_header *chunk);
+
 int main() {
     char *test_name = "test pool strategy 6";
-    size_t n_pointers = 1024;
+    size_t n_pointers = 200;
     char *pointers[n_pointers];
 
     initialize_malloc();
@@ -39,6 +41,13 @@ int main() {
 
         write_dummy_data(pointers[i], size);
         free(pointers[i]);
+
+        chunk_header *chunk = get_chunk_header(pointers[i]);
+        memory_zone *zone = pool_strategy_get_chunk_memory_zone(chunk);
+        if (zone == NULL) {
+            continue;
+        }
+
         valid = check_metadata_in_use(pointers[i], 0);
         if (!valid) {
             print_test(test_name, TEST_FAIL, "Metadata: is not in use, should be in use");

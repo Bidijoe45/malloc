@@ -11,7 +11,7 @@ for i in range(0, 1000):
 
     print(f"Test index: {i}")
 
-    process = Popen(["python3", rand_generator_path, f"{instructions_output_file}/tmp_rand_commands", "2000", "1000", "1", "70000", "1000"], stdout=PIPE, cwd=cwd)
+    process = Popen(["python3", rand_generator_path, f"{instructions_output_file}/tmp_rand_commands", "2000", "1999", "1", "50000", "1000"], stdout=PIPE, cwd=cwd)
     (output, err) = process.communicate()
     exit_code = process.wait()
 
