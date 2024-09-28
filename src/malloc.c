@@ -3,6 +3,7 @@
 #include <signal.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "libft_malloc/libft_malloc.h"
 #include "malloc_state.h"

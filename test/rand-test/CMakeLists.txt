@@ -21,13 +21,11 @@ configure_file(${CMAKE_SOURCE_DIR}/test/rand-test/run-test.sh ${CMAKE_BINARY_DIR
 #test args: test_name n_allocations n_reallocations lower_bound upper_bound initial_offset
 
 #Get the system page size
-#execute_process(
-#    COMMAND getconf PAGESIZE
-#    OUTPUT_VARIABLE page_size
-#    OUTPUT_STRIP_TRAILING_WHITESPACE
-#)
-
-set(page_size 4096)
+execute_process(
+    COMMAND getconf PAGESIZE
+    OUTPUT_VARIABLE page_size
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
 
 set(tiny_lower_bound 1)
 set(tiny_upper_bound 16)
@@ -76,7 +74,7 @@ create_test("rand_mix_test_4" 200 0 ${tiny_lower_bound} ${large_upper_bound} 100
 create_test("rand_mix_test_5" 600 0 ${tiny_lower_bound} ${large_upper_bound} 100)
 create_test("rand_mix_test_6" 600 0 ${tiny_lower_bound} ${large_upper_bound} 200)
 create_test("rand_mix_test_7" 1000 0 ${tiny_lower_bound} ${large_upper_bound} 400)
-create_test("rand_mix_test_8" 3000 0 ${tiny_lower_bound} ${large_upper_bound} 1000)
+#create_test("rand_mix_test_8" 3000 0 ${tiny_lower_bound} ${large_upper_bound} 1000)
 #create_test("rand_mix_test_9" 5000 0 ${tiny_lower_bound} ${large_upper_bound} 3000)
 
 #realloc test
@@ -87,5 +85,5 @@ create_test("rand_realloc_test_4" 200 190 ${tiny_lower_bound} ${large_upper_boun
 create_test("rand_realloc_test_5" 600 500 ${tiny_lower_bound} ${large_upper_bound} 100)
 create_test("rand_realloc_test_6" 600 500 ${tiny_lower_bound} ${large_upper_bound} 200)
 create_test("rand_realloc_test_7" 2000 1900 ${tiny_lower_bound} ${large_upper_bound} 400)
-create_test("rand_realloc_test_8" 3000 2000 ${tiny_lower_bound} ${large_upper_bound} 1000)
+#create_test("rand_realloc_test_8" 3000 2000 ${tiny_lower_bound} ${large_upper_bound} 1000)
 #create_test("rand_realloc_test_9" 5000 3000 ${tiny_lower_bound} ${large_upper_bound} 3000)

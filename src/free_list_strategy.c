@@ -12,7 +12,7 @@
 void fls_initialize() {
     g_malloc_data.zones_list[SMALL_ZONE] = NULL;
     g_malloc_data.chunks_list[SMALL_ZONE] = NULL;
-    g_malloc_data.sizes[SMALL_ZONE].zone = 4096 * 800; //FIXME: getpagesize() * 800;
+    g_malloc_data.sizes[SMALL_ZONE].zone = getpagesize() * 800;
     g_malloc_data.sizes[SMALL_ZONE].chunk = g_malloc_data.sizes[SMALL_ZONE].zone / 128;
     g_malloc_data.sizes[SMALL_ZONE].payload = g_malloc_data.sizes[SMALL_ZONE].chunk - SIZE_T_SIZE * 2;
 }

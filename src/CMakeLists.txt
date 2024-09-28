@@ -15,20 +15,35 @@ set(LIBRARY_SOURCES
     malloc.c
 )
 
-execute_process(
-    COMMAND uname -m
-    OUTPUT_VARIABLE ARCH
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
+if (DEFINED ENV{HOSTTYPE})
+    set(HOSTTYPE "$ENV{HOSTTYPE}")
+else()
+    execute_process(
+        COMMAND uname -m
+        OUTPUT_VARIABLE ARCH
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
 
-execute_process(
-    COMMAND uname -s
-    OUTPUT_VARIABLE OS
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
+    execute_process(
+        COMMAND uname -s
+        OUTPUT_VARIABLE OS
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+
+    set(HOSTTYPE "${ARCH}_${OS}")
+endif()
 
 add_library(${PROJECT_NAME} SHARED ${LIBRARY_SOURCES})
 
-set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX "_e")
+set_target_properties(${PROJECT_NAME} PROPERTIES LIBRARY_OUTPUT_NAME "ft_malloc")
+set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX "_${HOSTTYPE}.so")
+set_target_properties(${PROJECT_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+
+get_target_property(LIBRARY_OUTPUT_NAME ${PROJECT_NAME} LIBRARY_OUTPUT_NAME)
+get_target_property(LIBRARY_OUTPUT_DIRECTORY ${PROJECT_NAME} LIBRARY_OUTPUT_DIRECTORY)
+
+set(library_name "libft_malloc_${HOSTTYPE}.so")
+ADD_CUSTOM_TARGET(link_target ALL
+                  COMMAND ${CMAKE_COMMAND} -E create_symlink "${library_name}" "${LIBRARY_OUTPUT_DIRECTORY}/libft_malloc.so")
 
 target_include_directories(${PROJECT_NAME} PUBLIC "../include")

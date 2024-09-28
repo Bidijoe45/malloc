@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "malloc_state.h"
 #include "malloc_utils.h"
 
