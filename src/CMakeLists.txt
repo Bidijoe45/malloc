@@ -15,6 +15,20 @@ set(LIBRARY_SOURCES
     malloc.c
 )
 
+execute_process(
+    COMMAND uname -m
+    OUTPUT_VARIABLE ARCH
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+execute_process(
+    COMMAND uname -s
+    OUTPUT_VARIABLE OS
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
 add_library(${PROJECT_NAME} SHARED ${LIBRARY_SOURCES})
+
+set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX "_e")
 
 target_include_directories(${PROJECT_NAME} PUBLIC "../include")
